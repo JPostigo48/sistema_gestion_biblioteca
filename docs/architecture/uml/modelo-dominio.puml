@@ -1,0 +1,103 @@
+@startuml ModeloDominio
+!pragma layout smetana
+title Modelo de dominio propuesto — préstamos universitarios
+top to bottom direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam linetype polyline
+skinparam nodesep 45
+skinparam ranksep 55
+hide circle
+hide empty methods
+
+package "Autenticación · auth\nBounded context genérico de apoyo" as BCAuth #F2F2F2 {
+  package "Agregado CuentaAcceso" as AgCuenta {
+    class CuentaAcceso <<Aggregate Root, Entidad>> {
+      usuarioId : UsuarioId
+      rol : RolAcceso
+    }
+  }
+  enum RolAcceso {
+    USUARIO
+    OPERADOR
+  }
+  CuentaAcceso ..> RolAcceso : rol
+}
+
+package "Usuarios · users\nBounded context de soporte" as BCUsuarios #E8F1FA {
+  package "Agregado Usuario" as AgUsuario {
+    class Usuario <<Aggregate Root, Entidad>> {
+      usuarioId : UsuarioId
+      nombre : String
+    }
+  }
+}
+
+package "Préstamos · loans\nBounded context central" as BCPrestamos #FFF2CC {
+  package "Agregado Préstamo" as AgPrestamo {
+    class "Préstamo" as Prestamo <<Aggregate Root, Entidad>> {
+      prestamoId : PrestamoId
+      usuarioId : UsuarioId
+      ejemplarId : EjemplarId
+      fechaPrestamo : FechaHora
+      fechaDevolucion : FechaHora [0..1]
+      /estado : EstadoPrestamo
+    }
+  }
+  enum EstadoPrestamo {
+    ACTIVO
+    FINALIZADO
+  }
+  Prestamo ..> EstadoPrestamo : estado derivado
+  note bottom of Prestamo
+    Sin devolución: ACTIVO.
+    Con devolución: FINALIZADO.
+    fechaDevolucion >= fechaPrestamo.
+  end note
+}
+
+package "Inventario · inventory\nBounded context de soporte" as BCInventario #E8F1FA {
+  package "Agregado Ejemplar" as AgEjemplar {
+    class Ejemplar <<Aggregate Root, Entidad>> {
+      ejemplarId : EjemplarId
+      recursoId : RecursoId
+      estado : EstadoEjemplar
+    }
+  }
+  package "Agregado Recurso" as AgRecurso {
+    class Recurso <<Aggregate Root, Entidad>> {
+      recursoId : RecursoId
+      nombre : String
+      tipo : TipoRecurso
+    }
+  }
+  enum EstadoEjemplar {
+    DISPONIBLE
+    PRESTADO
+  }
+  enum TipoRecurso {
+    LIBRO
+    EQUIPO
+    OTRO
+  }
+  Ejemplar ..> EstadoEjemplar : estado
+  Recurso ..> TipoRecurso : tipo
+  Ejemplar "0..*" --> "1" Recurso : recursoId
+}
+
+CuentaAcceso "1" --> "1" Usuario : usuarioId
+Prestamo "0..*" --> "1" Usuario : usuarioId
+Prestamo "0..*" --> "1" Ejemplar : ejemplarId\n{máximo 1 préstamo activo por ejemplar}
+
+legend bottom
+  Los paquetes interiores delimitan agregados; cada raíz es también una entidad.
+  Las asociaciones entre agregados se mantienen por identificador, no por composición.
+  *Id: identidad conceptual, sin imponer UUID, enteros ni clases Value Object.
+  0..* préstamos representa el historial; la exclusividad afecta solo a los activos.
+  Recurso representa el catálogo; Ejemplar, una unidad física prestable.
+endlegend
+@enduml

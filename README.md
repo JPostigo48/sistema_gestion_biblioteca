@@ -4,7 +4,7 @@ Sistema en planificación para registrar y controlar préstamos de libros, equip
 
 ## Estado actual
 
-El repositorio se encuentra en etapa de documentación inicial. Cuenta con este README y tres [diagramas del dominio en Structurizr](docs/architecture/structurizr/README.md), con instrucciones de ejecución local. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
+El repositorio se encuentra en etapa de documentación inicial. Cuenta con tres [diagramas del dominio en Structurizr](docs/architecture/structurizr/README.md) y un [modelo de dominio UML en PlantUML](docs/architecture/uml/README.md), con instrucciones de ejecución local. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
 
 ## Alcance inicial planificado
 
@@ -26,7 +26,7 @@ Las categorías de estudiante, docente y personal administrativo, así como lím
 | Comunicación | API entre frontend y backend |
 | Modelado y documentación | DDD, UML, Structurizr y PlantUML |
 
-Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organización, contextos y agregados y documentación de ejecución; las herramientas de la aplicación y los diagramas UML aún están pendientes.
+Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organización, contextos y agregados; PlantUML contiene el modelo de clases conceptual. Las herramientas de la aplicación aún están pendientes.
 
 ## Organización actual
 
@@ -40,11 +40,13 @@ Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organi
 │       │   ├── README.md
 │       │   └── workspace.dsl
 │       └── uml/
+│           ├── README.md
+│           └── modelo-dominio.puml
 ├── .gitignore
 └── README.md
 ```
 
-`docs/architecture/structurizr/` contiene las tres vistas del dominio y sus instrucciones de uso. `backend/`, `frontend/` y `docs/architecture/uml/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
+`docs/architecture/structurizr/` contiene las tres vistas DDD y `docs/architecture/uml/` el modelo conceptual de clases, junto con sus instrucciones de uso. `backend/` y `frontend/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
 
 ## Arquitectura planteada
 
