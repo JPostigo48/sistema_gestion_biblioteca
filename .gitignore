@@ -1,0 +1,4 @@
+# Estado y binarios locales de Structurizr
+/docs/architecture/structurizr/.structurizr/
+/docs/architecture/structurizr/structurizr.war
+/docs/architecture/structurizr/workspace.json
