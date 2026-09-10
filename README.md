@@ -1,15 +1,15 @@
 # Sistema de gestión de préstamos universitarios
 
-Sistema en planificación para registrar y controlar préstamos de libros, equipos y otros recursos académicos de una institución universitaria. Busca centralizar la información de usuarios, recursos y préstamos para conocer la disponibilidad de cada recurso y quién lo tiene asignado.
+Sistema en planificación para registrar y controlar préstamos de libros, equipos y otros recursos académicos de una institución universitaria. Busca centralizar la información de usuarios, recursos y préstamos para consultar ejemplares disponibles de cada recurso y conocer quién tiene prestada cada unidad física.
 
 ## Estado actual
 
-El repositorio se encuentra en etapa de documentación inicial. Cuenta con este README y un [primer diagrama de organización del dominio en Structurizr](docs/architecture/structurizr/README.md), con instrucciones de ejecución local. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
+El repositorio se encuentra en etapa de documentación inicial. Cuenta con este README y tres [diagramas del dominio en Structurizr](docs/architecture/structurizr/README.md), con instrucciones de ejecución local. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
 
 ## Alcance inicial planificado
 
 - Gestión de usuarios y su tipo.
-- Registro y consulta de recursos y su disponibilidad.
+- Registro y consulta de recursos, sus ejemplares físicos y su disponibilidad.
 - Registro de préstamos y devoluciones.
 - Consulta de préstamos activos y conservación del historial de préstamos finalizados.
 - Autenticación y control básico de acceso: el usuario consulta recursos y sus propios préstamos; el administrador u operador gestiona recursos y registra préstamos y devoluciones.
@@ -26,7 +26,7 @@ Las categorías de estudiante, docente y personal administrativo, así como lím
 | Comunicación | API entre frontend y backend |
 | Modelado y documentación | DDD, UML, Structurizr y PlantUML |
 
-Estas tecnologías están seleccionadas. Solo Structurizr cuenta con un modelo inicial y documentación de ejecución; las herramientas de la aplicación y los diagramas UML aún están pendientes.
+Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organización, contextos y agregados y documentación de ejecución; las herramientas de la aplicación y los diagramas UML aún están pendientes.
 
 ## Organización actual
 
@@ -44,7 +44,7 @@ Estas tecnologías están seleccionadas. Solo Structurizr cuenta con un modelo i
 └── README.md
 ```
 
-`docs/architecture/structurizr/` contiene el primer modelo de arquitectura y sus instrucciones de uso. `backend/`, `frontend/` y `docs/architecture/uml/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
+`docs/architecture/structurizr/` contiene las tres vistas del dominio y sus instrucciones de uso. `backend/`, `frontend/` y `docs/architecture/uml/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
 
 ## Arquitectura planteada
 
@@ -63,20 +63,23 @@ Se tomará Clean Architecture como referencia, con separación de responsabilida
 
 ## Dominio y enfoque DDD
 
-El modelo inicial distingue **Usuario**, **Recurso** y **Préstamo**. El préstamo es el concepto central: vincula temporalmente a un usuario con un recurso y registra sus fechas y estado.
+El modelo distingue **Usuario**, **Recurso**, **Ejemplar** y **Préstamo**. Recurso describe una entrada del catálogo y Ejemplar una unidad física de ese recurso. El préstamo es el concepto central: vincula temporalmente a un usuario con un ejemplar y registra sus fechas; su estado se deriva de la existencia de fecha de devolución.
 
-DDD orientará el vocabulario y la distribución de responsabilidades en las áreas de Usuarios, Inventario y Préstamos, sin asumir todavía límites de agregados ni aplicar todos sus patrones.
+Los contextos delimitados propuestos son **Préstamos** (central), **Usuarios** e **Inventario** (soporte) y **Autenticación** (genérico de apoyo). Esta clasificación orienta las responsabilidades; no define microservicios. Los módulos se corresponden inicialmente con estos contextos.
+
+Los agregados iniciales, cada uno con una única entidad raíz, son Usuario, Recurso, Ejemplar, Préstamo y CuentaAcceso. Recurso y Ejemplar se separan para gestionar cada unidad de forma independiente. Las referencias entre agregados usan identificadores. CuentaAcceso vincula al usuario con su rol, sin seleccionar aún credenciales ni proveedor de autenticación.
 
 Reglas iniciales:
 
-- Cada préstamo debe asociarse a un usuario y un recurso registrados.
-- Solo puede prestarse un recurso disponible.
-- Un recurso no puede participar en más de un préstamo activo, incluso ante solicitudes concurrentes.
-- Al registrar el préstamo, el recurso pasa a prestado.
-- Al registrar la devolución, el préstamo finaliza y el recurso vuelve a estar disponible; el historial se conserva.
+- Cada préstamo identifica a un usuario registrado y a un ejemplar de un recurso registrado.
+- Un recurso puede prestarse si tiene al menos un ejemplar disponible; cada préstamo corresponde a una unidad física.
+- Un ejemplar no puede participar en más de un préstamo activo, incluso ante solicitudes concurrentes. Sí pueden prestarse otros ejemplares del mismo recurso.
+- Registrar un préstamo y pasar su ejemplar a prestado deben ser una operación consistente.
+- Registrar la devolución finaliza el préstamo y vuelve a dejar disponible su ejemplar; el historial se conserva.
+- La fecha de devolución no puede ser anterior al préstamo; sin devolución el préstamo está activo.
 
 ## Objetivos y definiciones pendientes
 
 El informe plantea respuestas de aproximadamente 2 segundos como máximo en condiciones normales, al menos 50 usuarios simultáneos y capacidad inicial para 300 usuarios registrados. Son objetivos **no verificados**; falta concretar las condiciones y pruebas de aceptación.
 
-Antes de implementar se deben definir el modelo de datos y los identificadores de recursos, los roles y permisos, el mecanismo de autenticación, los contratos de la API, las fechas y estados del préstamo y la estrategia transaccional para evitar préstamos activos duplicados. También quedan pendientes las herramientas de ejecución, persistencia, migraciones y pruebas.
+Antes de implementar se deben definir el modelo de datos y el formato de los identificadores, el detalle de permisos por rol, el mecanismo de autenticación, los contratos de la API, el tratamiento de fechas y la estrategia transaccional para evitar préstamos activos duplicados. También quedan pendientes las herramientas de ejecución, persistencia, migraciones y pruebas.
