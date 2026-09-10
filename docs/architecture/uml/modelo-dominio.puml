@@ -2,102 +2,138 @@
 !pragma layout smetana
 title Modelo de dominio propuesto — préstamos universitarios
 top to bottom direction
+
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
 skinparam defaultFontName SansSerif
 skinparam defaultFontSize 13
-skinparam linetype polyline
-skinparam nodesep 45
-skinparam ranksep 55
+skinparam linetype ortho
+skinparam nodesep 55
+skinparam ranksep 65
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #475569
+skinparam PackageBorderColor #64748B
 hide circle
 hide empty methods
 
-package "Autenticación · auth\nBounded context genérico de apoyo" as BCAuth #F2F2F2 {
-  package "Agregado CuentaAcceso" as AgCuenta {
-    class CuentaAcceso <<Aggregate Root, Entidad>> {
-      usuarioId : UsuarioId
-      rol : RolAcceso
-    }
-  }
-  enum RolAcceso {
-    USUARIO
-    OPERADOR
-  }
-  CuentaAcceso ..> RolAcceso : rol
-}
-
-package "Usuarios · users\nBounded context de soporte" as BCUsuarios #E8F1FA {
-  package "Agregado Usuario" as AgUsuario {
-    class Usuario <<Aggregate Root, Entidad>> {
+package "Usuarios · users\n<<Bounded Context · soporte>>" as BCUsuarios #E8F1FA {
+  package "Usuario\n<<Aggregate>>" as AgUsuario #F8FBFE {
+    class Usuario <<Aggregate Root · Entity>> {
       usuarioId : UsuarioId
       nombre : String
     }
   }
 }
 
-package "Préstamos · loans\nBounded context central" as BCPrestamos #FFF2CC {
-  package "Agregado Préstamo" as AgPrestamo {
-    class "Préstamo" as Prestamo <<Aggregate Root, Entidad>> {
+package "Préstamos · loans\n<<Bounded Context · central>>" as BCPrestamos #FFF2CC {
+  package "Préstamo\n<<Aggregate>>" as AgPrestamo #FFFBEB {
+    class "Préstamo" as Prestamo <<Aggregate Root · Entity>> {
       prestamoId : PrestamoId
       usuarioId : UsuarioId
       ejemplarId : EjemplarId
       fechaPrestamo : FechaHora
       fechaDevolucion : FechaHora [0..1]
       /estado : EstadoPrestamo
+      -- Comportamiento de dominio --
+      estaActivo() : Boolean
+      registrarDevolucion(fecha : FechaHora)
     }
   }
+
   enum EstadoPrestamo {
     ACTIVO
     FINALIZADO
   }
-  Prestamo ..> EstadoPrestamo : estado derivado
+
+  Prestamo ..> EstadoPrestamo : /estado
+
   note bottom of Prestamo
-    Sin devolución: ACTIVO.
-    Con devolución: FINALIZADO.
-    fechaDevolucion >= fechaPrestamo.
+    Sin fechaDevolucion: ACTIVO.
+    Con fechaDevolucion: FINALIZADO.
+    La devolución no puede ser anterior al préstamo.
+    El historial admite 0..* préstamos por Ejemplar,
+    pero como máximo uno puede estar ACTIVO.
   end note
 }
 
-package "Inventario · inventory\nBounded context de soporte" as BCInventario #E8F1FA {
-  package "Agregado Ejemplar" as AgEjemplar {
-    class Ejemplar <<Aggregate Root, Entidad>> {
-      ejemplarId : EjemplarId
-      recursoId : RecursoId
-      estado : EstadoEjemplar
-    }
-  }
-  package "Agregado Recurso" as AgRecurso {
-    class Recurso <<Aggregate Root, Entidad>> {
+package "Inventario · inventory\n<<Bounded Context · soporte>>" as BCInventario #E8F1FA {
+  package "Recurso\n<<Aggregate>>" as AgRecurso #F8FBFE {
+    class Recurso <<Aggregate Root · Entity>> {
       recursoId : RecursoId
       nombre : String
       tipo : TipoRecurso
     }
   }
-  enum EstadoEjemplar {
-    DISPONIBLE
-    PRESTADO
+
+  package "Ejemplar\n<<Aggregate>>" as AgEjemplar #F8FBFE {
+    class Ejemplar <<Aggregate Root · Entity>> {
+      ejemplarId : EjemplarId
+      recursoId : RecursoId
+      estado : EstadoEjemplar
+      -- Comportamiento de dominio --
+      estaDisponible() : Boolean
+      prestar()
+      devolver()
+    }
   }
+
   enum TipoRecurso {
     LIBRO
     EQUIPO
     OTRO
   }
-  Ejemplar ..> EstadoEjemplar : estado
+
+  enum EstadoEjemplar {
+    DISPONIBLE
+    PRESTADO
+  }
+
   Recurso ..> TipoRecurso : tipo
-  Ejemplar "0..*" --> "1" Recurso : recursoId
+  Ejemplar ..> EstadoEjemplar : estado
+  Recurso "1" <-- "1..*" Ejemplar : recursoId {referencia por ID}
+
+  note bottom of Recurso
+    /disponible = existe al menos un Ejemplar DISPONIBLE.
+    La disponibilidad no se almacena en Recurso.
+  end note
 }
 
-CuentaAcceso "1" --> "1" Usuario : usuarioId
-Prestamo "0..*" --> "1" Usuario : usuarioId
-Prestamo "0..*" --> "1" Ejemplar : ejemplarId\n{máximo 1 préstamo activo por ejemplar}
+package "Autenticación · auth\n<<Bounded Context · genérico de apoyo>>" as BCAuth #F3E8FF {
+  package "CuentaAcceso\n<<Aggregate>>" as AgCuenta #FAF5FF {
+    class CuentaAcceso <<Aggregate Root · Entity>> {
+      usuarioId : UsuarioId
+      rol : RolAcceso
+    }
+  }
+
+  enum RolAcceso {
+    USUARIO
+    OPERADOR
+  }
+
+  CuentaAcceso ..> RolAcceso : rol
+}
+
+Usuario "1" <-- "0..*" Prestamo : usuarioId {ID externo}
+Ejemplar "1" <-- "0..*" Prestamo : ejemplarId {ID externo}
+Usuario "1" <-- "1" CuentaAcceso : usuarioId {ID externo}
+
+BCUsuarios -[hidden]right- BCPrestamos
+BCPrestamos -[hidden]right- BCInventario
+BCUsuarios -[hidden]down- BCAuth
 
 legend bottom
-  Los paquetes interiores delimitan agregados; cada raíz es también una entidad.
-  Las asociaciones entre agregados se mantienen por identificador, no por composición.
-  *Id: identidad conceptual, sin imponer UUID, enteros ni clases Value Object.
-  0..* préstamos representa el historial; la exclusividad afecta solo a los activos.
-  Recurso representa el catálogo; Ejemplar, una unidad física prestable.
+  |= Estereotipo |= Significado |
+  | <<Bounded Context>> | Límite del modelo y vocabulario del módulo |
+  | <<Aggregate>> | Límite de consistencia del agregado |
+  | <<Aggregate Root · Entity>> | Entidad raíz y único punto de acceso al agregado |
+  Las asociaciones entre agregados representan referencias por identificador,
+  no composición ni carga de objetos de otros agregados o contextos.
+  Recurso y Ejemplar son agregados separados: cada unidad cambia de estado y
+  se presta independientemente, evitando convertir el catálogo en un agregado
+  grande y contendido. La consistencia préstamo–ejemplar se coordina atómicamente.
 endlegend
+
 @enduml

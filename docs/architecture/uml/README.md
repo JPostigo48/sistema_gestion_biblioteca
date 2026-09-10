@@ -7,7 +7,7 @@
 | Contexto / módulo | Agregados y raíces | Justificación |
 | --- | --- | --- |
 | Usuarios / `users` | Usuario | Identidad y datos de la persona registrada. |
-| Inventario / `inventory` | Recurso; Ejemplar | Recurso describe una entrada del catálogo. Ejemplar identifica una unidad física y controla su estado de disponibilidad. Son agregados independientes para no modificar todo el catálogo o sus ejemplares al prestar una unidad. |
+| Inventario / `inventory` | Recurso; Ejemplar | Recurso describe una entrada del catálogo. Ejemplar identifica una unidad física y controla su estado de disponibilidad. Son agregados independientes porque cada unidad cambia de estado y se presta de forma independiente; así se evita convertir el catálogo en un agregado grande y contendido. |
 | Préstamos / `loans` | Préstamo | Registra la relación temporal entre una persona y una unidad física, sus fechas y finalización. Es el contexto central. |
 | Autenticación / `auth` | CuentaAcceso | Asocia una identidad de usuario con su rol de acceso, sin mezclar los permisos con los datos personales. Es un contexto genérico de apoyo. |
 
@@ -15,13 +15,14 @@ Usuarios e Inventario son contextos de soporte. Cada agregado contiene únicamen
 
 ## Catálogo, unidades y préstamos
 
-- Un Recurso puede tener cero o más Ejemplares. Cada Ejemplar pertenece a un único Recurso mediante `recursoId`. Un registro de catálogo sin unidades no está disponible para préstamo.
+- Un Recurso tiene uno o más Ejemplares. Cada Ejemplar pertenece a un único Recurso mediante `recursoId` y la relación entre ambos agregados se conserva por identificador.
 - Al solicitar un libro se consulta si existe algún Ejemplar `DISPONIBLE` del Recurso. El préstamo se registra sobre el `ejemplarId` seleccionado, no sobre el libro del catálogo en general. El mismo criterio permite representar equipos y otros recursos sin añadir jerarquías por tipo.
 - Cada Préstamo referencia exactamente un Usuario y un Ejemplar mediante sus identificadores. Las multiplicidades `0..*` representan el historial; solo puede existir un préstamo activo por unidad física.
 - La disponibilidad del Recurso se obtiene de sus ejemplares; no se duplica como atributo independiente. Un Ejemplar pasa a `PRESTADO` con el préstamo y a `DISPONIBLE` con su devolución.
 - `/estado` de Préstamo es derivado: sin `fechaDevolucion` es `ACTIVO`; con ella es `FINALIZADO`. La devolución no puede ser anterior al préstamo. `FechaHora` expresa un instante conceptual; formato y zona horaria se definirán antes de implementar. No se añaden vencimientos, reservas ni sanciones.
+- El diagrama muestra únicamente comportamiento de dominio que protege o consulta estas reglas: prestar/devolver un Ejemplar, consultar su disponibilidad, finalizar un Préstamo y consultar si sigue activo. No representa operaciones CRUD ni métodos de acceso a atributos.
 
-Los límites de agregado NO garantizan por sí solos la consistencia entre Inventario y Préstamos. Registrar el préstamo y cambiar la disponibilidad deben coordinarse de forma atómica, también frente a concurrencia; igual ocurre al devolver. Consultar disponibilidad antes de escribir no basta. La estrategia transaccional y las restricciones de persistencia se definirán al diseñar la implementación.
+Recurso y Ejemplar permanecen como agregados separados. La invariante que cambia durante el préstamo pertenece a una unidad física concreta, y cada unidad debe poder modificarse sin cargar ni bloquear todas las copias del catálogo. Los límites de agregado NO garantizan por sí solos la consistencia entre Inventario y Préstamos: registrar el préstamo y cambiar la disponibilidad deben coordinarse de forma atómica, también frente a concurrencia; igual ocurre al devolver. Consultar disponibilidad antes de escribir no basta. La estrategia transaccional y las restricciones de persistencia se definirán al diseñar la implementación.
 
 ## Acceso y aspectos pendientes
 
@@ -33,7 +34,7 @@ El rol determina acceso, no categorías académicas. Estudiante, docente y perso
 
 Se requiere Java y un [JAR de PlantUML](https://plantuml.com/download). El archivo usa el motor Smetana incluido en PlantUML para no depender de una instalación separada de Graphviz.
 
-Validado con Java 21 y PlantUML 1.2026.6: comprobación de sintaxis y generación SVG/PNG sin errores, con revisión visual del PNG.
+Validado con Java 21 y PlantUML 1.2026.8: comprobación de sintaxis y generación SVG/PNG sin errores, con revisión visual del PNG.
 
 Desde la raíz del repositorio, en PowerShell:
 

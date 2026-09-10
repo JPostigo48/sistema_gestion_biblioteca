@@ -31,7 +31,7 @@
         internalUsers = element "Usuarios · módulo users" "Bounded context · soporte" "[AR] Usuario: usuarioId, nombre." {
             tags "Soporte"
         }
-        internalInventory = element "Inventario · módulo inventory" "Bounded context · soporte" "[AR] Recurso: recursoId, nombre, tipo | [AR] Ejemplar: ejemplarId, recursoId, estado. Recurso 1 → 0..* Ejemplares." {
+        internalInventory = element "Inventario · módulo inventory" "Bounded context · soporte" "[AR] Recurso: recursoId, nombre, tipo | [AR] Ejemplar: ejemplarId, recursoId, estado. Recurso 1 → 1..* Ejemplares." {
             tags "Soporte"
         }
         internalLoans = element "Préstamos · módulo loans" "Bounded context · central" "[AR] Préstamo: prestamoId, usuarioId, ejemplarId, fechaPrestamo, fechaDevolucion opcional; estado derivado." {

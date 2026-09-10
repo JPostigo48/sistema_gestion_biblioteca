@@ -39,7 +39,7 @@ El control de acceso se aplicará en presentación/aplicación de los módulos c
 | Préstamos / `loans` | Préstamo | `prestamoId`; referencias `usuarioId` y `ejemplarId` |
 | Autenticación / `auth` | CuentaAcceso | `usuarioId` identifica la cuenta y referencia a Usuario |
 
-**Recurso** describe una entrada del catálogo: un libro, equipo u otro recurso. Puede tener cero o más **Ejemplares**, cada uno de los cuales representa una unidad física identificable. Son agregados distintos porque cada unidad puede prestarse independientemente; no se necesita cargar ni modificar todos los ejemplares para prestar uno. No se modela una jerarquía de clases por tipo de recurso.
+**Recurso** describe una entrada del catálogo: un libro, equipo u otro recurso. Tiene uno o más **Ejemplares**, cada uno de los cuales representa una unidad física identificable. Son agregados distintos porque cada unidad puede prestarse independientemente; no se necesita cargar ni modificar todos los ejemplares para prestar uno. No se modela una jerarquía de clases por tipo de recurso.
 
 La disponibilidad pertenece a **Ejemplar** (`DISPONIBLE` o `PRESTADO`), no a Recurso. Un recurso puede prestarse cuando existe al menos un ejemplar disponible. Cada préstamo corresponde a una sola unidad; un mismo recurso puede tener varios ejemplares prestados simultáneamente. El informe no establece un límite de préstamos por usuario.
 
