@@ -4,7 +4,7 @@ Sistema en planificación para registrar y controlar préstamos de libros, equip
 
 ## Estado actual
 
-El repositorio se encuentra en etapa de documentación inicial. Cuenta con este README, un archivo `.gitignore` vacío y directorios de organización local. **No hay funcionalidades implementadas**, configuración de ejecución, esquema de base de datos ni diagramas todavía.
+El repositorio se encuentra en etapa de documentación inicial. Cuenta con este README y un [primer diagrama de organización del dominio en Structurizr](docs/architecture/structurizr/README.md), con instrucciones de ejecución local. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
 
 ## Alcance inicial planificado
 
@@ -26,7 +26,7 @@ Las categorías de estudiante, docente y personal administrativo, así como lím
 | Comunicación | API entre frontend y backend |
 | Modelado y documentación | DDD, UML, Structurizr y PlantUML |
 
-Estas tecnologías están seleccionadas, pero aún no están configuradas en el repositorio.
+Estas tecnologías están seleccionadas. Solo Structurizr cuenta con un modelo inicial y documentación de ejecución; las herramientas de la aplicación y los diagramas UML aún están pendientes.
 
 ## Organización actual
 
@@ -37,12 +37,14 @@ Estas tecnologías están seleccionadas, pero aún no están configuradas en el 
 ├── docs/
 │   └── architecture/
 │       ├── structurizr/
+│       │   ├── README.md
+│       │   └── workspace.dsl
 │       └── uml/
 ├── .gitignore
 └── README.md
 ```
 
-Los directorios mostrados existen localmente y están vacíos; Git no los versiona mientras no contengan archivos. Se reservan para el backend, el frontend y los modelos de arquitectura, respectivamente.
+`docs/architecture/structurizr/` contiene el primer modelo de arquitectura y sus instrucciones de uso. `backend/`, `frontend/` y `docs/architecture/uml/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
 
 ## Arquitectura planteada
 
