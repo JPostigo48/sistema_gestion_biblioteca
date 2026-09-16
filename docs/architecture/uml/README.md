@@ -1,40 +1,67 @@
 # Modelo de dominio UML
 
-[`modelo-dominio.puml`](modelo-dominio.puml) es un diagrama de clases conceptual en PlantUML. Detalla el modelo propuesto en las [vistas DDD de Structurizr](../structurizr/README.md); no representa clases implementadas ni tablas de PostgreSQL.
+[`modelo-dominio.puml`](modelo-dominio.puml) es el diagrama de clases conceptual del sistema. Está alineado con el [análisis de requisitos](../../requirements/README.md) vigente; no representa clases implementadas, tablas de PostgreSQL, DTO ni contratos de API. Las [vistas de Structurizr](../structurizr/README.md) todavía describen el modelo estratégico inicial y deberán actualizarse por separado.
 
-## Límites y responsabilidades
+## Límites y agregados
 
-| Contexto / módulo | Agregados y raíces | Justificación |
+| Contexto o área | Agregados y raíces | Responsabilidad representada |
 | --- | --- | --- |
-| Usuarios / `users` | Usuario | Identidad y datos de la persona registrada. |
-| Inventario / `inventory` | Recurso; Ejemplar | Recurso describe una entrada del catálogo. Ejemplar identifica una unidad física y controla su estado de disponibilidad. Son agregados independientes porque cada unidad cambia de estado y se presta de forma independiente; así se evita convertir el catálogo en un agregado grande y contendido. |
-| Préstamos / `loans` | Préstamo | Registra la relación temporal entre una persona y una unidad física, sus fechas y finalización. Es el contexto central. |
-| Autenticación / `auth` | CuentaAcceso | Asocia una identidad de usuario con su rol de acceso, sin mezclar los permisos con los datos personales. Es un contexto genérico de apoyo. |
+| Usuarios / `users` — soporte | `SolicitudRegistro`; `Usuario` | Separa la solicitud y sus evidencias de la identidad aprobada. Mantiene tipo institucional, vinculación, confianza y habilitación para préstamos. |
+| Inventario / `inventory` — soporte | `CategoriaRecurso`; `Recurso`; `Ejemplar` | Define el plazo por categoría, el catálogo de recursos y cada unidad física prestable con sus observaciones. |
+| Préstamos / `loans` — central | `Prestamo` | Registra la relación temporal entre un usuario y un ejemplar, el límite de devolución y su finalización. |
+| Autenticación / `auth` — genérico de apoyo | `CuentaAcceso` | Vincula una identidad de usuario con su rol de acceso sin mezclar permisos con la clasificación institucional. |
+| Reglas y términos — límite por validar | `ReglaUso`; `VersionRegla`; `Incumplimiento`; `VersionTerminos`; `AceptacionTerminos` | Modela reglas versionadas, penalizaciones históricas y aceptación de términos. No se afirma todavía que esta área sea un bounded context independiente. |
 
-Usuarios e Inventario son contextos de soporte. Cada agregado contiene únicamente su raíz, que es una entidad: no se necesitan entidades internas artificiales. Las enumeraciones describen valores permitidos, no agregados adicionales. No se introducen Value Objects porque todavía no existen reglas de valor o comportamientos que justifiquen clases específicas. Los tipos `UsuarioId`, `RecursoId`, `EjemplarId` y `PrestamoId` expresan identidades conceptuales; su representación técnica está pendiente.
+Los agregados se mantienen pequeños y las relaciones entre ellos se expresan mediante identificadores. Las composiciones solo aparecen donde un objeto forma parte del ciclo de vida de su agregado: evidencias de una solicitud, porcentaje de confianza del usuario como valor, observaciones de un ejemplar y devolución de un préstamo.
 
-## Catálogo, unidades y préstamos
+## Usuarios, confianza y acceso
 
-- Un Recurso tiene uno o más Ejemplares. Cada Ejemplar pertenece a un único Recurso mediante `recursoId` y la relación entre ambos agregados se conserva por identificador.
-- Al solicitar un libro se consulta si existe algún Ejemplar `DISPONIBLE` del Recurso. El préstamo se registra sobre el `ejemplarId` seleccionado, no sobre el libro del catálogo en general. El mismo criterio permite representar equipos y otros recursos sin añadir jerarquías por tipo.
-- Cada Préstamo referencia exactamente un Usuario y un Ejemplar mediante sus identificadores. Las multiplicidades `0..*` representan el historial; solo puede existir un préstamo activo por unidad física.
-- La disponibilidad del Recurso se obtiene de sus ejemplares; no se duplica como atributo independiente. Un Ejemplar pasa a `PRESTADO` con el préstamo y a `DISPONIBLE` con su devolución.
-- `/estado` de Préstamo es derivado: sin `fechaDevolucion` es `ACTIVO`; con ella es `FINALIZADO`. La devolución no puede ser anterior al préstamo. `FechaHora` expresa un instante conceptual; formato y zona horaria se definirán antes de implementar. No se añaden vencimientos, reservas ni sanciones.
-- El diagrama muestra únicamente comportamiento de dominio que protege o consulta estas reglas: prestar/devolver un Ejemplar, consultar su disponibilidad, finalizar un Préstamo y consultar si sigue activo. No representa operaciones CRUD ni métodos de acceso a atributos.
+- `SolicitudRegistro` conserva el tipo de usuario, el identificador institucional cuando corresponda, la fecha, el estado y cero o más evidencias de vinculación. La dependencia punteada indica que una solicitud aprobada puede originar un usuario; no representa una asociación persistente entre ambos agregados. El procedimiento de verificación sigue pendiente.
+- `Usuario` es la raíz que conserva la identidad institucional ya habilitada. `TipoUsuario` distingue `ESTUDIANTE`, `DOCENTE` y `ADMINISTRATIVO`.
+- `PorcentajeConfianza` es un Value Object del agregado `Usuario` porque protege la invariante del intervalo cerrado de 0 a 100. El nivel se deriva del porcentaje y solo se representan cuatro identificadores provisionales (`NIVEL_1` a `NIVEL_4`); sus nombres y umbrales definitivos no están definidos.
+- `/habilitadoParaPrestamos` es un valor derivado de la vinculación vigente, la confianza y las restricciones o consecuencias aplicables. El modelo no inventa una fórmula ni restricciones concretas.
+- `CuentaAcceso` mantiene una correspondencia conceptual uno a uno con `Usuario`. Su estado `/habilitada` requiere una solicitud aprobada y vinculación vigente con la EPCC; no sustituye `/habilitadoParaPrestamos`, que además considera confianza y restricciones del dominio. `TipoUsuario.ADMINISTRATIVO` describe la relación de una persona con la EPCC; `RolAcceso.ADMINISTRADOR` concede permisos dentro del sistema. Son conceptos distintos. La fórmula de habilitación, las credenciales y el proveedor de autenticación permanecen pendientes.
 
-Recurso y Ejemplar permanecen como agregados separados. La invariante que cambia durante el préstamo pertenece a una unidad física concreta, y cada unidad debe poder modificarse sin cargar ni bloquear todas las copias del catálogo. Los límites de agregado NO garantizan por sí solos la consistencia entre Inventario y Préstamos: registrar el préstamo y cambiar la disponibilidad deben coordinarse de forma atómica, también frente a concurrencia; igual ocurre al devolver. Consultar disponibilidad antes de escribir no basta. La estrategia transaccional y las restricciones de persistencia se definirán al diseñar la implementación.
+## Inventario y préstamos
 
-## Acceso y aspectos pendientes
+- `CategoriaRecurso` define el tiempo máximo de préstamo. `Recurso` referencia su categoría y representa una entrada del catálogo. `Ejemplar` referencia el recurso y representa una unidad física. Cada recurso tiene uno o varios ejemplares registrados.
+- `/disponible` de `Recurso` se deriva de que exista al menos un ejemplar `DISPONIBLE`; no se almacena como una fuente de verdad adicional.
+- `EstadoEjemplar.NO_DISPONIBLE` permite conservar una unidad que, después de una devolución o incidencia, no puede seguir prestándose. Las observaciones pertenecen al agregado `Ejemplar` y registran el estado detectado sin inventar categorías de daño.
+- Cada `Prestamo` referencia exactamente un usuario y un ejemplar. Las multiplicidades `0..*` representan el historial, pero un ejemplar solo puede tener un préstamo activo a la vez.
+- `fechaLimiteDevolucion` queda fijada al crear el préstamo a partir del tiempo de la categoría. Es una instantánea del plazo aplicado: modificar después una categoría no cambia préstamos existentes.
+- La devolución es un Value Object opcional del préstamo y su fecha no puede ser anterior a `fechaPrestamo`. Sin devolución, el estado derivado es `ACTIVO`; con devolución, `FINALIZADO`. `/vencido` indica que un préstamo activo superó su fecha límite.
+- Registrar un préstamo y cambiar el ejemplar a `PRESTADO` deben coordinarse de forma atómica, también ante concurrencia. Al devolver, el ejemplar solo pasa a `DISPONIBLE` si puede seguir prestándose; de lo contrario queda `NO_DISPONIBLE` y se conserva la observación correspondiente.
 
-Se propone una CuentaAcceso por Usuario, identificada con el mismo `usuarioId`, y un único rol inicial: `USUARIO` u `OPERADOR`. Este último agrupa al administrador u operador del informe; no se inventan permisos distintos para ambos. La relación uno a uno es una decisión inicial de modelado, no una exigencia técnica de autenticación. Credenciales, proveedor y mecanismo de autenticación quedan pendientes.
+## Reglas, incumplimientos y términos
 
-El rol determina acceso, no categorías académicas. Estudiante, docente y personal administrativo siguen fuera de esta versión del modelo, al igual que reglas diferenciadas por categoría. Tampoco se especifican todavía políticas de eliminación o cambios de clasificación de ejemplares con historial.
+- `ReglaUso` se asocia por identificador con una o más raíces `VersionRegla` y conserva `versionVigenteId`. Cada versión registra `reglaId`, título, descripción, porcentaje de penalización, consecuencia y estado, y es inmutable una vez histórica. `VersionRegla` es un agregado independiente porque otros agregados, en particular `Incumplimiento`, deben referenciar directamente la versión histórica sin atravesar ni cargar `ReglaUso`. Modificar una regla genera una versión que no altera las anteriores.
+- `Incumplimiento` referencia al usuario, la regla y la versión exacta infringida. También conserva `penalizacionAplicada`, por lo que una modificación posterior no cambia el descuento histórico.
+- Registrar el incumplimiento y actualizar el porcentaje de confianza debe ser una operación consistente. El mecanismo técnico de coordinación se definirá durante el diseño de implementación.
+- `VersionTerminos` y `AceptacionTerminos` permiten saber qué versión aceptó cada usuario y cuándo. No se relaciona una versión de términos con versiones de reglas porque la composición de los términos sigue pendiente.
+- La consecuencia se conserva como información conceptual de la regla. Su representación y ejecución automática aún no están definidas.
+
+## Decisiones deliberadamente pendientes
+
+El diagrama NO define todavía:
+
+- porcentaje inicial de confianza;
+- nombres y umbrales definitivos de los cuatro niveles;
+- restricciones concretas por nivel de confianza o tipo de usuario;
+- límite de préstamos simultáneos para estudiantes;
+- mecanismos para aumentar la confianza;
+- procedimiento de verificación de la vinculación con la EPCC;
+- credenciales o proveedor de autenticación;
+- sanciones o consecuencias ejecutables;
+- composición de una versión de términos;
+- estrategia transaccional, restricciones de persistencia o esquema de base de datos.
+
+Tampoco introduce subclases por tipo de usuario o recurso, un motor de reglas, eventos de dominio, sagas ni otros patrones que los requisitos actuales no justifican.
 
 ## Renderizado local
 
 Se requiere Java y un [JAR de PlantUML](https://plantuml.com/download). El archivo usa el motor Smetana incluido en PlantUML para no depender de una instalación separada de Graphviz.
 
-Validado con Java 21 y PlantUML 1.2026.8: comprobación de sintaxis y generación SVG/PNG sin errores, con revisión visual del PNG.
+Validado con Java 21 y PlantUML 1.2026.6 mediante comprobación de sintaxis, generación SVG/PNG y revisión visual del PNG.
 
 Desde la raíz del repositorio, en PowerShell:
 
@@ -44,8 +71,9 @@ $salida = Join-Path $env:TEMP 'prestamos-uml'
 New-Item -ItemType Directory -Force -Path $salida | Out-Null
 java -jar $env:PLANTUML_JAR -charset UTF-8 --check-syntax docs/architecture/uml/modelo-dominio.puml
 java -jar $env:PLANTUML_JAR -charset UTF-8 --format svg --output-dir $salida docs/architecture/uml/modelo-dominio.puml
+java -jar $env:PLANTUML_JAR -charset UTF-8 --format png --output-dir $salida docs/architecture/uml/modelo-dominio.puml
 ```
 
-Sustituir la ruta del JAR por su ubicación local. La salida será `$salida/ModeloDominio.svg`, que puede abrirse en el navegador. Para PNG, sustituir `svg` por `png`. Los binarios y renderizados se mantienen fuera del repositorio; el archivo `.puml` es la fuente versionada.
+Sustituir la ruta del JAR por su ubicación local. Los renderizados se mantienen fuera del repositorio; el archivo `.puml` es la fuente versionada.
 
 Referencias de sintaxis y ejecución: [diagrama de clases](https://plantuml.com/class-diagram) y [línea de comandos de PlantUML](https://plantuml.com/command-line).

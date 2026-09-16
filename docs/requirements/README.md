@@ -18,7 +18,7 @@ Cada documento mantiene una responsabilidad específica. Cuando un requisito nec
 
 Los documentos reflejan las definiciones disponibles en esta etapa. Los valores o comportamientos todavía no acordados se identifican expresamente como pendientes y no deben inferirse durante el diseño o la implementación.
 
-La [documentación de arquitectura](../architecture/) representa el modelo inicial del proyecto. Esta ampliación de la planificación todavía no está reflejada en los diagramas de Structurizr ni PlantUML, que se mantienen sin cambios en esta tarea. Antes de implementar las nuevas áreas del dominio deberá revisarse la coherencia entre requisitos, modelo de dominio y arquitectura.
+El [modelo de dominio UML](../architecture/uml/README.md) está alineado con esta planificación. Las [vistas de Structurizr](../architecture/structurizr/README.md) todavía representan el modelo estratégico inicial y deberán sincronizarse antes de implementar las nuevas áreas del dominio.
 
 ## Trazabilidad y convenciones
 
