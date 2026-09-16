@@ -1,342 +1,533 @@
 @startuml ModeloDominio
-!pragma layout smetana
+
 title Modelo de dominio propuesto — préstamos universitarios
+
 left to right direction
+
+
+' =========================================================
+' CONFIGURACIÓN VISUAL
+' =========================================================
 
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam packageStyle rectangle
+
 skinparam classAttributeIconSize 0
 skinparam defaultFontName SansSerif
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
+skinparam classFontSize 11
+skinparam packageFontSize 12
+skinparam noteFontSize 10
+skinparam legendFontSize 10
+skinparam ArrowFontSize 10
+
 skinparam linetype ortho
-skinparam nodesep 35
-skinparam ranksep 45
+
+' Separación vertical y horizontal entre elementos.
+skinparam nodesep 55
+skinparam ranksep 85
+
 skinparam ArrowColor #475569
 skinparam ClassBorderColor #475569
 skinparam PackageBorderColor #64748B
+
 skinparam NoteBorderColor #94A3B8
 skinparam NoteBackgroundColor #F8FAFC
+
 hide circle
 hide empty methods
 
+
+' =========================================================
+' BOUNDED CONTEXT: INVENTARIO
+' =========================================================
+
 package "Inventario · inventory\n<<Bounded Context · soporte>>" as BCInventario #E8F1FA {
-  together {
+
     package "Categoría de recurso\n<<Aggregate>>" as AgCategoria #F8FBFE {
-      class CategoriaRecurso <<Aggregate Root · Entity>> {
-        categoriaId : CategoriaRecursoId
-        nombre : String
-        tiempoMaximoPrestamo : Duracion
-      }
+
+        class CategoriaRecurso <<Aggregate Root · Entity>> {
+            categoriaId : CategoriaRecursoId
+            nombre : String
+            tiempoMaximoPrestamo : Duracion
+        }
     }
+
 
     package "Recurso\n<<Aggregate>>" as AgRecurso #F8FBFE {
-      class Recurso <<Aggregate Root · Entity>> {
-        recursoId : RecursoId
-        categoriaId : CategoriaRecursoId
-        nombre : String
-        /disponible : Boolean
-      }
-    }
-  }
 
-  package "Ejemplar\n<<Aggregate>>" as AgEjemplar #F8FBFE {
-    class Ejemplar <<Aggregate Root · Entity>> {
-      ejemplarId : EjemplarId
-      recursoId : RecursoId
-      estado : EstadoEjemplar
+        class Recurso <<Aggregate Root · Entity>> {
+            recursoId : RecursoId
+            categoriaId : CategoriaRecursoId
+            nombre : String
+            /disponible : Boolean
+        }
     }
 
-    class ObservacionEjemplar <<Entity>> {
-      observacionId : ObservacionEjemplarId
-      fecha : FechaHora
-      descripcion : String
+
+    package "Ejemplar\n<<Aggregate>>" as AgEjemplar #F8FBFE {
+
+        enum EstadoEjemplar {
+            DISPONIBLE
+            PRESTADO
+            NO_DISPONIBLE
+        }
+
+
+        class Ejemplar <<Aggregate Root · Entity>> {
+            ejemplarId : EjemplarId
+            recursoId : RecursoId
+            estado : EstadoEjemplar
+        }
+
+
+        class ObservacionEjemplar <<Entity>> {
+            observacionId : ObservacionEjemplarId
+            fecha : FechaHora
+            descripcion : String
+        }
+
+
+        ' -------------------------------------------------
+        ' Relaciones reales
+        '
+        ' El nombre "observaciones" se coloca junto al
+        ' extremo 0..*, evitando la etiqueta flotante.
+        ' -------------------------------------------------
+
+        Ejemplar ..> EstadoEjemplar : estado
+
+        Ejemplar "1" *-- "0..*\nobservaciones" ObservacionEjemplar
+
+
+        ' -------------------------------------------------
+        ' ORDEN VISUAL DEL AGREGADO
+        '
+        '          EstadoEjemplar
+        '                |
+        '                |
+        '           Ejemplar -------------- Observaciones
+        ' -------------------------------------------------
+
+        EstadoEjemplar -[hidden]down-> Ejemplar
+
+        Ejemplar -[hidden]right-> ObservacionEjemplar
     }
 
-    enum EstadoEjemplar {
-      DISPONIBLE
-      PRESTADO
-      NO_DISPONIBLE
-    }
 
-    Ejemplar "1" *-- "0..*" ObservacionEjemplar : observaciones
-    Ejemplar ..> EstadoEjemplar : estado
-  }
+    ' Los nombres se modelan como roles en los extremos.
+    CategoriaRecurso "1" <-- "0..*\nrecursos" Recurso
 
-  CategoriaRecurso "1" <-- "0..*" Recurso : categoriaId
-  Recurso "1" <-- "1..*" Ejemplar : recursoId
+    Recurso "1" --> "1..*\nejemplares" Ejemplar
 
-  note bottom of Recurso
-    /disponible = existe al menos un Ejemplar DISPONIBLE.
-  end note
+
+    note bottom of Recurso
+        Disponible si existe al menos
+        un ejemplar DISPONIBLE.
+    end note
+
+
+    ' Orden horizontal del bounded context.
+    AgCategoria -[hidden]right-> AgRecurso
+    AgRecurso -[hidden]right-> AgEjemplar
 }
+
+
+' =========================================================
+' BOUNDED CONTEXT: PRÉSTAMOS
+' =========================================================
 
 package "Préstamos · loans\n<<Bounded Context · central>>" as BCPrestamos #FFF2CC {
-  package "Préstamo\n<<Aggregate>>" as AgPrestamo #FFFBEB {
-    class "Préstamo" as Prestamo <<Aggregate Root · Entity>> {
-      prestamoId : PrestamoId
-      usuarioId : UsuarioId
-      ejemplarId : EjemplarId
-      fechaInicio : FechaHora
-      fechaFin : FechaHora
-      /estado : EstadoPrestamo
-      /vencido : Boolean
+
+    package "Préstamo\n<<Aggregate>>" as AgPrestamo #FFFBEB {
+
+        class "Préstamo" as Prestamo <<Aggregate Root · Entity>> {
+            prestamoId : PrestamoId
+            usuarioId : UsuarioId
+            ejemplarId : EjemplarId
+
+            fechaInicio : FechaHora
+            fechaFin : FechaHora
+
+            /estado : EstadoPrestamo
+            /vencido : Boolean
+        }
+
+
+        enum EstadoPrestamo {
+            PLANIFICADO
+            ACTIVO
+            FINALIZADO
+        }
+
+
+        class "Devolución" as Devolucion <<Value Object>> {
+            fecha : FechaHora
+            observacion : String [0..1]
+
+            {invariant} fecha >= Prestamo.fechaInicio
+        }
+
+
+        Prestamo ..> EstadoPrestamo : estado
+
+        Prestamo "1" *-- "0..1\ndevolución" Devolucion
+
+
+        ' Orden visual interno.
+        Prestamo -[hidden]right-> EstadoPrestamo
+        EstadoPrestamo -[hidden]down-> Devolucion
     }
 
-    class "Devolución" as Devolucion <<Value Object>> {
-      fecha : FechaHora
-      observacion : String [0..1]
-      {invariant} fecha >= Prestamo.fechaInicio
-    }
 
-    enum EstadoPrestamo {
-      PLANIFICADO
-      ACTIVO
-      FINALIZADO
-    }
-
-    Prestamo "1" *-- "0..1" Devolucion : devolución
-    Prestamo ..> EstadoPrestamo : /estado
-  }
-
-  note bottom of Prestamo
-    [fechaInicio, fechaFin] define el intervalo ocupado del ejemplar.
-    Soporta préstamos inmediatos y planificados.
-    Un ejemplar no puede tener intervalos activos o planificados superpuestos.
-  end note
+    note bottom of Prestamo
+        Un mismo ejemplar no puede tener
+        intervalos de préstamo superpuestos.
+    end note
 }
+
+
+' =========================================================
+' BOUNDED CONTEXT: USUARIOS
+' =========================================================
 
 package "Usuarios · users\n<<Bounded Context · soporte>>" as BCUsuarios #E8F1FA {
-  package "SolicitudRegistro\n<<Aggregate>>" as AgSolicitud #F8FBFE {
-    class SolicitudRegistro <<Aggregate Root · Entity>> {
-      solicitudId : SolicitudRegistroId
-      tipoUsuario : TipoUsuario
-      identificadorInstitucional : String [0..1]
-      fechaSolicitud : FechaHora
-      estado : EstadoSolicitud
+
+    package "Solicitud de registro\n<<Aggregate>>" as AgSolicitud #F8FBFE {
+
+        class SolicitudRegistro <<Aggregate Root · Entity>> {
+            solicitudId : SolicitudRegistroId
+            tipoUsuario : TipoUsuario
+            identificadorInstitucional : String [0..1]
+            fechaSolicitud : FechaHora
+            estado : EstadoSolicitud
+        }
+
+
+        class EvidenciaVinculacion <<Value Object>> {
+            informacion : String
+        }
+
+
+        SolicitudRegistro "1" *-- "0..*\nevidencias" EvidenciaVinculacion
+
+
+        SolicitudRegistro -[hidden]right-> EvidenciaVinculacion
     }
 
-    class EvidenciaVinculacion <<Value Object>> {
-      informacion : String
+
+    package "Usuario\n<<Aggregate>>" as AgUsuario #F8FBFE {
+
+        class Usuario <<Aggregate Root · Entity>> {
+            usuarioId : UsuarioId
+            nombre : String
+            tipoUsuario : TipoUsuario
+            identificadorInstitucional : String [0..1]
+            vinculacionVigente : Boolean
+
+            confianza : PorcentajeConfianza
+            /nivelConfianza : NivelConfianza
+
+            /penalizadoActualmente : Boolean
+            /habilitadoParaPrestamos : Boolean
+        }
+
+
+        class PorcentajeConfianza <<Value Object>> {
+            valor : Decimal
+
+            {invariant} 0 <= valor <= 100
+        }
+
+
+        class "Sanción" as Sancion <<Entity>> {
+            sancionId : SancionId
+            usuarioId : UsuarioId
+
+            incumplimientoId : IncumplimientoId [0..1]
+            reglaId : ReglaUsoId [0..1]
+            versionReglaId : VersionReglaId [0..1]
+
+            estado : EstadoSancion
+
+            fechaInicio : FechaHora
+            fechaFin : FechaHora
+
+            confianzaAnterior : PorcentajeConfianza
+            confianzaPosterior : PorcentajeConfianza
+
+            /cambioConfianza : Decimal
+        }
+
+
+        enum EstadoSancion {
+            ACTIVA
+            FINALIZADA
+        }
+
+
+        Usuario "1" *-- "1\nconfianza" PorcentajeConfianza
+
+        Usuario "1" *-- "0..*\nsanciones" Sancion
+
+        Sancion ..> EstadoSancion : estado
+
+
+        Usuario -[hidden]right-> PorcentajeConfianza
+
+        PorcentajeConfianza -[hidden]down-> Sancion
+
+        Sancion -[hidden]right-> EstadoSancion
     }
 
-    SolicitudRegistro "1" *-- "0..*" EvidenciaVinculacion : evidencias
-  }
 
-  package "Usuario\n<<Aggregate>>" as AgUsuario #F8FBFE {
-    class Usuario <<Aggregate Root · Entity>> {
-      usuarioId : UsuarioId
-      nombre : String
-      tipoUsuario : TipoUsuario
-      identificadorInstitucional : String [0..1]
-      vinculacionVigente : Boolean
-      confianza : PorcentajeConfianza
-      /nivelConfianza : NivelConfianza
-      /penalizadoActualmente : Boolean
-      /habilitadoParaPrestamos : Boolean
-    }
-
-    class PorcentajeConfianza <<Value Object>> {
-      valor : Decimal
-      {invariant} 0 <= valor <= 100
-    }
-
-    class "Sanción" as Sancion <<Entity>> {
-      sancionId : SancionId
-      usuarioId : UsuarioId
-      incumplimientoId : IncumplimientoId [0..1]
-      reglaId : ReglaUsoId [0..1]
-      versionReglaId : VersionReglaId [0..1]
-      estado : EstadoSancion
-      fechaInicio : FechaHora
-      fechaFin : FechaHora
-      confianzaAnterior : PorcentajeConfianza
-      confianzaPosterior : PorcentajeConfianza
-      /cambioConfianza : Decimal
-    }
-
-    enum EstadoSancion {
-      ACTIVA
-      FINALIZADA
-    }
-
-    Usuario "1" *-- "0..*" Sancion : sanciones
-    Usuario "1" *-- "1" PorcentajeConfianza : confianza
-    Sancion ..> EstadoSancion : estado
-  }
-
-  together {
     enum TipoUsuario {
-      ESTUDIANTE
-      DOCENTE
-      ADMINISTRATIVO
+        ESTUDIANTE
+        DOCENTE
+        ADMINISTRATIVO
     }
+
 
     enum EstadoSolicitud {
-      PENDIENTE
-      APROBADA
-      RECHAZADA
+        PENDIENTE
+        APROBADA
+        RECHAZADA
     }
+
 
     enum NivelConfianza {
-      NIVEL_1
-      NIVEL_2
-      NIVEL_3
-      NIVEL_4
+        NIVEL_1
+        NIVEL_2
+        NIVEL_3
+        NIVEL_4
     }
-  }
 
-  SolicitudRegistro ..> TipoUsuario : tipoUsuario
-  SolicitudRegistro ..> EstadoSolicitud : estado
-  SolicitudRegistro ..> Usuario : <<origina tras aprobación>>
-  Usuario ..> TipoUsuario : tipoUsuario
-  Usuario ..> NivelConfianza : /nivelConfianza
 
-  note bottom of Sancion
-    La colección de sanciones es el historial del usuario.
-    No se sobrescriben sanciones finalizadas.
-    El origen se conserva por IDs de incumplimiento, regla y versión.
-    confianzaAnterior y confianzaPosterior conservan el cambio aplicado.
-  end note
+    SolicitudRegistro ..> TipoUsuario : tipo
+
+    SolicitudRegistro ..> EstadoSolicitud : estado
+
+    SolicitudRegistro ..> Usuario : aprobación
+
+    Usuario ..> TipoUsuario : tipo
+
+    Usuario ..> NivelConfianza : nivel
+
+
+    note bottom of Sancion
+        Las sanciones constituyen el historial
+        de penalizaciones del usuario y conservan
+        el cambio de confianza aplicado.
+    end note
+
+
+    AgSolicitud -[hidden]down-> AgUsuario
 }
+
+
+' =========================================================
+' ÁREA DE DOMINIO: REGLAS Y TÉRMINOS
+' =========================================================
 
 package "Reglas y términos\n<<Área de dominio · límite por validar>>" as AreaReglas #F1F5F9 {
-  together {
+
+    ' =====================================================
+    ' COLUMNA DE REGLAS
+    ' =====================================================
+
     package "Regla de uso\n<<Aggregate>>" as AgRegla #F8FAFC {
-      class ReglaUso <<Aggregate Root · Entity>> {
-        reglaId : ReglaUsoId
-        versionVigenteId : VersionReglaId
-      }
+
+        class ReglaUso <<Aggregate Root · Entity>> {
+            reglaId : ReglaUsoId
+            versionVigenteId : VersionReglaId
+        }
     }
+
 
     package "Versión de regla\n<<Aggregate>>" as AgVersionRegla #F8FAFC {
-      class VersionRegla <<Aggregate Root · Entity>> {
-        versionId : VersionReglaId
-        reglaId : ReglaUsoId
-        numero : Integer
-        titulo : String
-        descripcion : String
-        penalizacionPorcentual : Decimal
-        consecuencia : String
-        estado : EstadoRegla
-        {invariant} versión histórica inmutable
-      }
-    }
-  }
 
-  package "Incumplimiento\n<<Aggregate>>" as AgIncumplimiento #F8FAFC {
-    class Incumplimiento <<Aggregate Root · Entity>> {
-      incumplimientoId : IncumplimientoId
-      usuarioId : UsuarioId
-      reglaId : ReglaUsoId
-      versionReglaId : VersionReglaId
-      fecha : FechaHora
-      penalizacionAplicada : Decimal
-      {invariant} registro histórico inmutable
-    }
-  }
+        class VersionRegla <<Aggregate Root · Entity>> {
+            versionId : VersionReglaId
+            reglaId : ReglaUsoId
 
-  together {
+            numero : Integer
+            titulo : String
+            descripcion : String
+
+            penalizacionPorcentual : Decimal
+            consecuencia : String
+
+            estado : EstadoRegla
+
+            {invariant} versión histórica inmutable
+        }
+    }
+
+
+    enum EstadoRegla {
+        ACTIVA
+        INACTIVA
+    }
+
+
+    package "Incumplimiento\n<<Aggregate>>" as AgIncumplimiento #F8FAFC {
+
+        class Incumplimiento <<Aggregate Root · Entity>> {
+            incumplimientoId : IncumplimientoId
+            usuarioId : UsuarioId
+
+            reglaId : ReglaUsoId
+            versionReglaId : VersionReglaId
+
+            fecha : FechaHora
+            penalizacionAplicada : Decimal
+
+            {invariant} registro histórico inmutable
+        }
+    }
+
+
+    ReglaUso "1" --> "1..*\nversiones" VersionRegla
+
+    VersionRegla ..> EstadoRegla : estado
+
+    Incumplimiento "0..*" --> "1\nversión infringida" VersionRegla
+
+
+    ' =====================================================
+    ' COLUMNA DE TÉRMINOS
+    ' =====================================================
+
+    note "Historial de incumplimientos:\nconserva la versión de la regla\ny la penalización realmente aplicada." as NotaHistorial
+
+
     package "Versión de términos\n<<Aggregate>>" as AgVersionTerminos #F8FAFC {
-      class VersionTerminos <<Aggregate Root · Entity>> {
-        versionTerminosId : VersionTerminosId
-        numero : Integer
-      }
+
+        class VersionTerminos <<Aggregate Root · Entity>> {
+            versionTerminosId : VersionTerminosId
+            numero : Integer
+        }
     }
+
 
     package "Aceptación de términos\n<<Aggregate>>" as AgAceptacion #F8FAFC {
-      class "AceptaciónTérminos" as AceptacionTerminos <<Aggregate Root · Entity>> {
-        aceptacionId : AceptacionTerminosId
-        usuarioId : UsuarioId
-        versionTerminosId : VersionTerminosId
-        fecha : FechaHora
-      }
+
+        class "AceptaciónTérminos" as AceptacionTerminos <<Aggregate Root · Entity>> {
+            aceptacionId : AceptacionTerminosId
+            usuarioId : UsuarioId
+            versionTerminosId : VersionTerminosId
+            fecha : FechaHora
+        }
     }
-  }
 
-  enum EstadoRegla {
-    ACTIVA
-    INACTIVA
-  }
 
-  ReglaUso "1" --> "1..*" VersionRegla : versiones
-  VersionRegla ..> EstadoRegla : estado
+    AceptacionTerminos "0..*" -up-> "1\nversión aceptada" VersionTerminos
 
-  note bottom of Incumplimiento
-    Conserva la regla, la versión infringida y la penalización aplicada.
-    Cambios posteriores de regla no alteran este registro.
-  end note
+
+    ' =====================================================
+    ' ORDEN VISUAL INTERNO
+    ' =====================================================
+
+    AgRegla -[hidden]down-> AgVersionRegla
+
+    AgVersionRegla -[hidden]down-> AgIncumplimiento
+
+
+    NotaHistorial -[hidden]down-> AgVersionTerminos
+
+    AgVersionTerminos -[hidden]down-> AgAceptacion
+
+
+    AgRegla -[hidden]right-> NotaHistorial
+
+    AgVersionRegla -[hidden]right-> AgVersionTerminos
+
+    AgIncumplimiento -[hidden]right-> AgAceptacion
 }
+
+
+' =========================================================
+' BOUNDED CONTEXT: AUTENTICACIÓN
+' =========================================================
 
 package "Autenticación · auth\n<<Bounded Context · genérico de apoyo>>" as BCAuth #F3E8FF {
-  package "CuentaAcceso\n<<Aggregate>>" as AgCuenta #FAF5FF {
-    class CuentaAcceso <<Aggregate Root · Entity>> {
-      cuentaId : CuentaAccesoId
-      usuarioId : UsuarioId
-      rol : RolAcceso
-      /habilitada : Boolean
+
+    package "Cuenta de acceso\n<<Aggregate>>" as AgCuenta #FAF5FF {
+
+        class CuentaAcceso <<Aggregate Root · Entity>> {
+            cuentaId : CuentaAccesoId
+            usuarioId : UsuarioId
+            rol : RolAcceso
+            /habilitada : Boolean
+        }
     }
-  }
 
-  enum RolAcceso {
-    USUARIO
-    OPERADOR
-    ADMINISTRADOR
-  }
 
-  CuentaAcceso ..> RolAcceso : rol
+    enum RolAcceso {
+        USUARIO
+        OPERADOR
+        ADMINISTRADOR
+    }
+
+
+    CuentaAcceso ..> RolAcceso : rol
+
+
+    AgCuenta -[hidden]right-> RolAcceso
 }
 
-' Relaciones principales entre agregados y contextos. Las referencias son por identificador.
-Ejemplar "1" -right-> "0..*" Prestamo : ejemplarId
-Prestamo "0..*" -right-> "1" Usuario : usuarioId
-CuentaAcceso "1" -up-> "1" Usuario : usuarioId
-Incumplimiento "0..*" -right-> "1" VersionRegla : versionReglaId
-AceptacionTerminos "0..*" -right-> "1" VersionTerminos : versionTerminosId
 
-note bottom of Usuario
-  /habilitadoParaPrestamos considera vinculación vigente,
-  confianza, sanciones activas y restricciones vigentes.
-  Las restricciones concretas siguen pendientes.
-end note
+' =========================================================
+' RELACIONES ENTRE CONTEXTOS
+'
+' Las referencias concretas entre agregados se almacenan
+' mediante sus identificadores.
+' =========================================================
 
-note bottom of BCPrestamos
-  Crear o planificar un préstamo y actualizar la disponibilidad del ejemplar
-  exige consistencia. Al devolver, el ejemplar solo vuelve a DISPONIBLE
-  si su estado permite continuar prestándolo.
-end note
+BCPrestamos ..> BCInventario : consulta\n disponibilidad
 
-note bottom of VersionTerminos
-  La composición de una versión de términos está pendiente;
-  por eso no se asume una relación con VersionRegla.
-end note
+BCPrestamos ..> BCUsuarios : identifica\n usuario
 
-note bottom of CuentaAcceso
-  TipoUsuario ADMINISTRATIVO describe vinculación institucional;
-  RolAcceso ADMINISTRADOR concede permisos. No son equivalentes.
-end note
+BCAuth ..> BCUsuarios : identidad\n y acceso
+
+AreaReglas ..> BCUsuarios : reglas, confianza\n y sanciones
+
+
+' =========================================================
+' ORDEN VISUAL GLOBAL
+' =========================================================
 
 BCInventario -[hidden]right-> BCPrestamos
+
 BCPrestamos -[hidden]right-> BCUsuarios
-BCUsuarios -[hidden]right-> AreaReglas
-BCUsuarios -[hidden]down-> BCAuth
-AgPrestamo -[hidden]right-> AgUsuario
-AgUsuario -[hidden]right-> AgIncumplimiento
-AgEjemplar -[hidden]right-> AgPrestamo
+
+
+BCPrestamos -[hidden]down-> BCAuth
+
+BCUsuarios -[hidden]down-> AreaReglas
+
+
+BCAuth -[hidden]right-> AreaReglas
+
+
+' =========================================================
+' LEYENDA
+' =========================================================
 
 legend bottom
-  |= Estereotipo |= Significado |
-  | <<Bounded Context>> | Límite del modelo y vocabulario de un contexto definido |
-  | <<Área de dominio · límite por validar>> | Responsabilidad modelada sin afirmar todavía un bounded context |
-  | <<Aggregate>> | Límite de consistencia del agregado |
-  | <<Aggregate Root · Entity>> | Entidad raíz y punto de acceso al agregado |
-  | <<Entity>> | Objeto con identidad dentro del agregado |
-  | <<Value Object>> | Valor definido por sus atributos y sin identidad propia |
-  Las asociaciones entre agregados representan referencias por identificador.
-  Los valores derivados se indican con una barra inicial (/).
-  Pendiente: porcentaje inicial de confianza; nombres y umbrales de niveles;
-  restricciones por nivel/tipo/sanción; límite para estudiantes; aumento de confianza;
-  verificación EPCC; credenciales; consecuencias ejecutables; composición de términos.
+
+|= Estereotipo |= Significado |
+| <<Bounded Context>> | Límite de un modelo de dominio |
+| <<Aggregate>> | Límite de consistencia |
+| <<Aggregate Root · Entity>> | Raíz del agregado |
+| <<Entity>> | Objeto del dominio con identidad |
+| <<Value Object>> | Valor definido por sus atributos |
+
+Las referencias entre bounded contexts se realizan por identificador.
+Los atributos derivados se indican mediante /.
+
 endlegend
+
 
 @enduml
