@@ -4,7 +4,7 @@ Sistema en planificación para registrar y controlar préstamos de libros, equip
 
 ## Estado actual
 
-El repositorio se encuentra en etapa de documentación inicial. El [análisis de requisitos](docs/requirements/README.md) es la fuente principal de la planificación actual. El [modelo de dominio UML en PlantUML](docs/architecture/uml/README.md) ya refleja esta ampliación; las tres [vistas del dominio en Structurizr](docs/architecture/structurizr/README.md) todavía representan el modelo estratégico inicial. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
+El repositorio se encuentra en etapa de documentación inicial. El [análisis de requisitos](docs/requirements/README.md) es la fuente principal de la planificación actual. El [modelo de dominio UML en PlantUML](docs/architecture/uml/README.md) ya refleja esta ampliación; el [mapa de contextos DDD en Structurizr](docs/architecture/structurizr/README.md) representa la división estratégica actual. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
 
 ## Alcance inicial planificado
 
@@ -28,7 +28,7 @@ La planificación contempla estudiantes, docentes y personal administrativo, as�
 | Comunicación | API entre frontend y backend |
 | Modelado y documentación | DDD, UML, Structurizr y PlantUML |
 
-Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organización, contextos y agregados; PlantUML contiene el modelo de clases conceptual. Las herramientas de la aplicación aún están pendientes.
+Estas tecnologías están seleccionadas. Structurizr cuenta con un mapa de contextos DDD; PlantUML contiene el modelo de clases conceptual. Las herramientas de la aplicación aún están pendientes.
 
 ## Organización actual
 
@@ -55,11 +55,11 @@ Estas tecnologías están seleccionadas. Structurizr cuenta con vistas de organi
 └── README.md
 ```
 
-`docs/requirements/` contiene el análisis vigente. `docs/architecture/uml/` contiene el modelo conceptual de clases alineado con ese análisis y `docs/architecture/structurizr/` conserva las tres vistas DDD iniciales, pendientes de sincronización. `backend/` y `frontend/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
+`docs/requirements/` contiene el análisis vigente. `docs/architecture/uml/` contiene el modelo conceptual de clases alineado con ese análisis y `docs/architecture/structurizr/` contiene una vista estratégica principal de contextos DDD. `backend/` y `frontend/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
 
 ## Arquitectura planteada
 
-La arquitectura inicial propone los módulos `users`, `inventory`, `loans` y `auth`, responsables de usuarios, recursos, préstamos y control de acceso. El modelo UML integra la confianza en Usuarios y representa reglas, incumplimientos y términos como un área de dominio cuyo límite estratégico todavía debe validarse. Esta división está propuesta, no implementada.
+La arquitectura inicial propone los módulos `users`, `inventory`, `loans` y `auth`, responsables de usuarios, recursos, préstamos y control de acceso. El mapa Structurizr separa además Confianza y Reglas y Términos como contextos estratégicos de soporte para reflejar la planificación vigente. Esta división está propuesta, no implementada.
 
 Dentro de cada módulo se separarán las responsabilidades que resulten necesarias:
 
@@ -76,7 +76,7 @@ Se tomará Clean Architecture como referencia, con separación de responsabilida
 
 El modelo distingue **Usuario**, **Recurso**, **Ejemplar** y **Préstamo**. Recurso describe una entrada del catálogo y Ejemplar una unidad física de ese recurso. El préstamo es el concepto central: vincula temporalmente a un usuario con un ejemplar y registra sus fechas; su estado se deriva de la existencia de fecha de devolución.
 
-Los contextos delimitados iniciales son **Préstamos** (central), **Usuarios** e **Inventario** (soporte) y **Autenticación** (genérico de apoyo). Esta clasificación orienta las responsabilidades y no define microservicios. La incorporación de confianza, reglas y términos requiere una revisión posterior del modelo estratégico.
+Los contextos delimitados actuales son **Préstamos** (central), **Usuarios**, **Inventario**, **Confianza** y **Reglas y Términos** (soporte), además de **Autenticación** como genérico de apoyo. Esta clasificación orienta las responsabilidades y no define microservicios.
 
 El [modelo UML vigente](docs/architecture/uml/README.md) detalla los agregados, entidades, Value Objects y enumeraciones derivados de los requisitos actuales. Recurso y Ejemplar se mantienen separados para gestionar cada unidad de forma independiente, y las referencias entre agregados usan identificadores.
 
