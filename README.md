@@ -4,7 +4,7 @@ Sistema en planificación para registrar y controlar préstamos de libros, equip
 
 ## Estado actual
 
-El repositorio se encuentra en etapa de documentación inicial. El [análisis de requisitos](docs/requirements/README.md) es la fuente principal de la planificación actual. El [modelo de dominio UML en PlantUML](docs/architecture/uml/README.md) ya refleja esta ampliación; el [mapa de contextos DDD en Structurizr](docs/architecture/structurizr/README.md) representa la división estratégica actual. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
+El repositorio se encuentra en etapa de documentación inicial. El [análisis de requisitos](docs/requirements/README.md) es la fuente principal de la planificación actual. El [modelo de dominio UML en PlantUML](docs/architecture/uml/README.md) ya refleja esta ampliación; las [vistas DDD en Structurizr](docs/architecture/structurizr/README.md) representan la división estratégica, la estructura interna y el ciclo principal del préstamo. **No hay funcionalidades implementadas**, configuración de ejecución de la aplicación ni esquema de base de datos.
 
 ## Alcance inicial planificado
 
@@ -28,7 +28,7 @@ La planificación contempla estudiantes, docentes y personal administrativo, as�
 | Comunicación | API entre frontend y backend |
 | Modelado y documentación | DDD, UML, Structurizr y PlantUML |
 
-Estas tecnologías están seleccionadas. Structurizr cuenta con un mapa de contextos DDD; PlantUML contiene el modelo de clases conceptual. Las herramientas de la aplicación aún están pendientes.
+Estas tecnologías están seleccionadas. Structurizr cuenta con vistas DDD de contexto, estructura interna y ciclo de préstamo; PlantUML contiene el modelo de clases conceptual. Las herramientas de la aplicación aún están pendientes.
 
 ## Organización actual
 
@@ -55,7 +55,7 @@ Estas tecnologías están seleccionadas. Structurizr cuenta con un mapa de conte
 └── README.md
 ```
 
-`docs/requirements/` contiene el análisis vigente. `docs/architecture/uml/` contiene el modelo conceptual de clases alineado con ese análisis y `docs/architecture/structurizr/` contiene una vista estratégica principal de contextos DDD. `backend/` y `frontend/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
+`docs/requirements/` contiene el análisis vigente. `docs/architecture/uml/` contiene el modelo conceptual de clases alineado con ese análisis y `docs/architecture/structurizr/` contiene vistas DDD de contexto, estructura interna y ciclo de préstamo. `backend/` y `frontend/` siguen vacíos y solo existen localmente; Git no los versiona mientras no contengan archivos.
 
 ## Arquitectura planteada
 

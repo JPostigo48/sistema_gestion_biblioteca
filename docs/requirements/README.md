@@ -18,7 +18,7 @@ Cada documento mantiene una responsabilidad específica. Cuando un requisito nec
 
 Los documentos reflejan las definiciones disponibles en esta etapa. Los valores o comportamientos todavía no acordados se identifican expresamente como pendientes y no deben inferirse durante el diseño o la implementación.
 
-El [modelo de dominio UML](../architecture/uml/README.md) está alineado con esta planificación. El [mapa de contextos DDD en Structurizr](../architecture/structurizr/README.md) representa la división estratégica actual del dominio.
+El [modelo de dominio UML](../architecture/uml/README.md) está alineado con esta planificación. Las [vistas DDD en Structurizr](../architecture/structurizr/README.md) representan la división estratégica, la estructura interna y el ciclo principal del dominio.
 
 ## Trazabilidad y convenciones
 
