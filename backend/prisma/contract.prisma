@@ -1,21 +1,19 @@
-// Prisma schema for the university lending domain.
-//
-// The domain model is documented in:
+// use prisma-next
+
+// Contrato Prisma 8 para PostgreSQL.
+// Fuente de dominio:
 // - docs/architecture/uml/modelo-dominio.puml
 // - docs/architecture/structurizr/workspace.dsl
-//
-// Business invariants that require application services or custom SQL migrations
-// are documented beside the affected models.
 
 // -----------------------------------------------------------------------------
 // INVENTARIO
 // -----------------------------------------------------------------------------
 model CategoriaRecurso {
-  id                       String    @id @default(uuid()) @db.Uuid
-  nombre                   String    @unique @db.VarChar(120)
+  id                       Uuid                 @id @default(uuid())
+  nombre                   VarChar(120)         @unique
   tiempoMaximoPrestamoDias Int
-  createdAt                DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt                DateTime  @updatedAt @db.Timestamptz(3)
+  createdAt                Timestamptz(3)       @default(now())
+  updatedAt                temporal.updatedAt()
 
   recursos                 Recurso[]
 
@@ -23,30 +21,30 @@ model CategoriaRecurso {
 }
 
 model Recurso {
-  id          String           @id @default(uuid()) @db.Uuid
-  categoriaId String           @db.Uuid
-  nombre      String           @db.VarChar(180)
-  descripcion String?          @db.Text
-  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
+  id          Uuid                 @id @default(uuid())
+  categoriaId Uuid
+  nombre      VarChar(180)
+  descripcion String?
 
-  categoria   CategoriaRecurso @relation(fields:[categoriaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt   Timestamptz(3)       @default(now())
+  updatedAt   temporal.updatedAt()
+
+  categoria   CategoriaRecurso     @relation(fields:[categoriaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   ejemplares  Ejemplar[]
 
-  // La disponibilidad es un atributo derivado: existe si hay al menos un
-  // ejemplar con estado DISPONIBLE. No se persiste para evitar inconsistencias.
   @@index([categoriaId])
   @@index([nombre])
   @@map("recursos")
 }
 
 model Ejemplar {
-  id               String                @id @default(uuid()) @db.Uuid
-  recursoId        String                @db.Uuid
-  codigoInventario String                @unique @db.VarChar(80)
+  id               Uuid                  @id @default(uuid())
+  recursoId        Uuid
+  codigoInventario VarChar(80)           @unique
   estado           EstadoEjemplar        @default(DISPONIBLE)
-  createdAt        DateTime              @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime              @updatedAt @db.Timestamptz(3)
+
+  createdAt        Timestamptz(3)        @default(now())
+  updatedAt        temporal.updatedAt()
 
   recurso          Recurso               @relation(fields:[recursoId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   observaciones    ObservacionEjemplar[]
@@ -58,13 +56,13 @@ model Ejemplar {
 }
 
 model ObservacionEjemplar {
-  id          String   @id @default(uuid()) @db.Uuid
-  ejemplarId  String   @db.Uuid
-  fecha       DateTime @default(now()) @db.Timestamptz(3)
-  descripcion String   @db.Text
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  id          Uuid           @id @default(uuid())
+  ejemplarId  Uuid
+  fecha       Timestamptz(3) @default(now())
+  descripcion String
+  createdAt   Timestamptz(3) @default(now())
 
-  ejemplar    Ejemplar @relation(fields:[ejemplarId], references:[id], onDelete: Cascade, onUpdate: Cascade)
+  ejemplar    Ejemplar       @relation(fields:[ejemplarId], references:[id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([ejemplarId, fecha])
   @@map("observaciones_ejemplar")
@@ -74,14 +72,15 @@ model ObservacionEjemplar {
 // USUARIOS Y REGISTRO
 // -----------------------------------------------------------------------------
 model SolicitudRegistro {
-  id                         String                 @id @default(uuid()) @db.Uuid
+  id                         Uuid                   @id @default(uuid())
   tipoUsuario                TipoUsuario
-  identificadorInstitucional String?                @db.VarChar(80)
-  fechaSolicitud             DateTime               @default(now()) @db.Timestamptz(3)
+  identificadorInstitucional VarChar(80)?
+  fechaSolicitud             Timestamptz(3)         @default(now())
   estado                     EstadoSolicitud        @default(PENDIENTE)
-  usuarioAprobadoId          String?                @db.Uuid
-  createdAt                  DateTime               @default(now()) @db.Timestamptz(3)
-  updatedAt                  DateTime               @updatedAt @db.Timestamptz(3)
+  usuarioAprobadoId          Uuid?
+
+  createdAt                  Timestamptz(3)         @default(now())
+  updatedAt                  temporal.updatedAt()
 
   evidencias                 EvidenciaVinculacion[]
   usuarioAprobado            Usuario?               @relation("SolicitudAprobadaUsuario", fields:[usuarioAprobadoId], references:[id], onDelete: SetNull, onUpdate: Cascade)
@@ -93,10 +92,11 @@ model SolicitudRegistro {
 }
 
 model EvidenciaVinculacion {
-  id                  String            @id @default(uuid()) @db.Uuid
-  solicitudRegistroId String            @db.Uuid
-  informacion         String            @db.Text
-  createdAt           DateTime          @default(now()) @db.Timestamptz(3)
+  id                  Uuid              @id @default(uuid())
+  solicitudRegistroId Uuid
+  informacion         String
+
+  createdAt           Timestamptz(3)    @default(now())
 
   solicitudRegistro   SolicitudRegistro @relation(fields:[solicitudRegistroId], references:[id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -105,17 +105,16 @@ model EvidenciaVinculacion {
 }
 
 model Usuario {
-  id                         String               @id @default(uuid()) @db.Uuid
-  nombre                     String               @db.VarChar(180)
+  id                         Uuid                 @id @default(uuid())
+  nombre                     VarChar(180)
   tipoUsuario                TipoUsuario
-  identificadorInstitucional String?              @unique @db.VarChar(80)
+  identificadorInstitucional VarChar(80)?         @unique
   vinculacionVigente         Boolean              @default(true)
-  confianza                  Decimal              @default(100.00) @db.Decimal(5, 2)
-  createdAt                  DateTime             @default(now()) @db.Timestamptz(3)
-  updatedAt                  DateTime             @updatedAt @db.Timestamptz(3)
+  confianza                  Numeric(5, 2)        @default(100.00)
 
-  // nivelConfianza, penalizadoActualmente y habilitadoParaPrestamos son
-  // propiedades derivadas y deben calcularse en el dominio.
+  createdAt                  Timestamptz(3)       @default(now())
+  updatedAt                  temporal.updatedAt()
+
   solicitudesAprobadas       SolicitudRegistro[]  @relation("SolicitudAprobadaUsuario")
   sanciones                  Sancion[]
   prestamos                  Prestamo[]
@@ -130,23 +129,24 @@ model Usuario {
 }
 
 model Sancion {
-  id                 String          @id @default(uuid()) @db.Uuid
-  usuarioId          String          @db.Uuid
-  incumplimientoId   String?         @unique @db.Uuid
-  reglaId            String?         @db.Uuid
-  versionReglaId     String?         @db.Uuid
-  estado             EstadoSancion   @default(ACTIVA)
-  fechaInicio        DateTime        @db.Timestamptz(3)
-  fechaFin           DateTime?       @db.Timestamptz(3)
-  confianzaAnterior  Decimal         @db.Decimal(5, 2)
-  confianzaPosterior Decimal         @db.Decimal(5, 2)
-  createdAt          DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt          DateTime        @updatedAt @db.Timestamptz(3)
+  id                 Uuid                 @id @default(uuid())
+  usuarioId          Uuid
+  incumplimientoId   Uuid?                @unique
+  reglaId            Uuid?
+  versionReglaId     Uuid?
+  estado             EstadoSancion        @default(ACTIVA)
+  fechaInicio        Timestamptz(3)
+  fechaFin           Timestamptz(3)?
+  confianzaAnterior  Numeric(5, 2)
+  confianzaPosterior Numeric(5, 2)
 
-  usuario            Usuario         @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  incumplimiento     Incumplimiento? @relation("IncumplimientoSancion", fields:[incumplimientoId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  regla              ReglaUso?       @relation("ReglaSanciones", fields:[reglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  versionRegla       VersionRegla?   @relation("VersionSanciones", fields:[versionReglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt          Timestamptz(3)       @default(now())
+  updatedAt          temporal.updatedAt()
+
+  usuario            Usuario              @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  incumplimiento     Incumplimiento?      @relation("IncumplimientoSancion", fields:[incumplimientoId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  regla              ReglaUso?            @relation("ReglaSanciones", fields:[reglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  versionRegla       VersionRegla?        @relation("VersionSanciones", fields:[versionReglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([usuarioId, estado])
   @@index([estado, fechaFin])
@@ -159,22 +159,20 @@ model Sancion {
 // PRÉSTAMOS
 // -----------------------------------------------------------------------------
 model Prestamo {
-  id          String         @id @default(uuid()) @db.Uuid
-  usuarioId   String         @db.Uuid
-  ejemplarId  String         @db.Uuid
-  fechaInicio DateTime       @db.Timestamptz(3)
-  fechaFin    DateTime       @db.Timestamptz(3)
-  estado      EstadoPrestamo @default(PLANIFICADO)
-  createdAt   DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime       @updatedAt @db.Timestamptz(3)
+  id          Uuid                 @id @default(uuid())
+  usuarioId   Uuid
+  ejemplarId  Uuid
+  fechaInicio Timestamptz(3)
+  fechaFin    Timestamptz(3)
+  estado      EstadoPrestamo       @default(PLANIFICADO)
 
-  usuario     Usuario        @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  ejemplar    Ejemplar       @relation(fields:[ejemplarId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt   Timestamptz(3)       @default(now())
+  updatedAt   temporal.updatedAt()
+
+  usuario     Usuario              @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  ejemplar    Ejemplar             @relation(fields:[ejemplarId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   devolucion  Devolucion?
 
-  // Regla de dominio: un ejemplar no puede tener intervalos PLANIFICADOS o
-  // ACTIVOS superpuestos. Prisma no expresa exclusion constraints; se debe
-  // agregar una migración SQL con tstzrange + EXCLUDE USING GIST.
   @@index([ejemplarId, estado, fechaInicio, fechaFin])
   @@index([usuarioId, estado])
   @@index([fechaFin, estado])
@@ -182,13 +180,14 @@ model Prestamo {
 }
 
 model Devolucion {
-  id          String   @id @default(uuid()) @db.Uuid
-  prestamoId  String   @unique @db.Uuid
-  fecha       DateTime @db.Timestamptz(3)
-  observacion String?  @db.Text
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  id          Uuid           @id @default(uuid())
+  prestamoId  Uuid           @unique
+  fecha       Timestamptz(3)
+  observacion String?
 
-  prestamo    Prestamo @relation(fields:[prestamoId], references:[id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   Timestamptz(3) @default(now())
+
+  prestamo    Prestamo       @relation(fields:[prestamoId], references:[id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("devoluciones")
 }
@@ -197,37 +196,37 @@ model Devolucion {
 // REGLAS, INCUMPLIMIENTOS Y APELACIONES
 // -----------------------------------------------------------------------------
 model ReglaUso {
-  id               String           @id @default(uuid()) @db.Uuid
-  versionVigenteId String?          @unique @db.Uuid
-  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  id               Uuid                 @id @default(uuid())
+  versionVigenteId Uuid?                @unique
 
-  versiones        VersionRegla[]   @relation("ReglaVersiones")
-  versionVigente   VersionRegla?    @relation("ReglaVersionVigente", fields:[versionVigenteId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt        Timestamptz(3)       @default(now())
+  updatedAt        temporal.updatedAt()
+
+  versiones        VersionRegla[]       @relation("ReglaVersiones")
+  versionVigente   VersionRegla?        @relation("ReglaVersionVigente", fields:[versionVigenteId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   incumplimientos  Incumplimiento[]
-  sanciones        Sancion[]        @relation("ReglaSanciones")
+  sanciones        Sancion[]            @relation("ReglaSanciones")
 
   @@map("reglas_uso")
 }
 
 model VersionRegla {
-  id                     String           @id @default(uuid()) @db.Uuid
-  reglaId                String           @db.Uuid
+  id                     Uuid             @id @default(uuid())
+  reglaId                Uuid
   numero                 Int
-  titulo                 String           @db.VarChar(180)
-  descripcion            String           @db.Text
-  penalizacionPorcentual Decimal          @db.Decimal(5, 2)
-  consecuencia           String           @db.Text
+  titulo                 VarChar(180)
+  descripcion            String
+  penalizacionPorcentual Numeric(5, 2)
+  consecuencia           String
   estado                 EstadoRegla      @default(ACTIVA)
-  createdAt              DateTime         @default(now()) @db.Timestamptz(3)
+
+  createdAt              Timestamptz(3)   @default(now())
 
   regla                  ReglaUso         @relation("ReglaVersiones", fields:[reglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   reglaVigentePara       ReglaUso?        @relation("ReglaVersionVigente")
   incumplimientos        Incumplimiento[]
   sanciones              Sancion[]        @relation("VersionSanciones")
 
-  // Las versiones son históricas e inmutables. La aplicación debe impedir
-  // updates sobre su contenido después de crear la versión.
   @@unique([reglaId, numero])
   @@index([estado])
   @@index([reglaId, estado])
@@ -235,43 +234,43 @@ model VersionRegla {
 }
 
 model Incumplimiento {
-  id                   String       @id @default(uuid()) @db.Uuid
-  usuarioId            String       @db.Uuid
-  reglaId              String       @db.Uuid
-  versionReglaId       String       @db.Uuid
-  fecha                DateTime     @default(now()) @db.Timestamptz(3)
-  penalizacionAplicada Decimal      @db.Decimal(5, 2)
-  createdAt            DateTime     @default(now()) @db.Timestamptz(3)
+  id                   Uuid           @id @default(uuid())
+  usuarioId            Uuid
+  reglaId              Uuid
+  versionReglaId       Uuid
+  fecha                Timestamptz(3) @default(now())
+  penalizacionAplicada Numeric(5, 2)
 
-  usuario              Usuario      @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  regla                ReglaUso     @relation(fields:[reglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  versionRegla         VersionRegla @relation(fields:[versionReglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  sancion              Sancion?     @relation("IncumplimientoSancion")
+  createdAt            Timestamptz(3) @default(now())
+
+  usuario              Usuario        @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  regla                ReglaUso       @relation(fields:[reglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  versionRegla         VersionRegla   @relation(fields:[versionReglaId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  sancion              Sancion?       @relation("IncumplimientoSancion")
   apelacion            Apelacion?
 
-  // Registro histórico: debe conservar reglaId, versionReglaId y la
-  // penalización realmente aplicada aunque la regla cambie posteriormente.
   @@index([usuarioId, fecha])
   @@index([reglaId, versionReglaId])
   @@map("incumplimientos")
 }
 
 model Apelacion {
-  id                  String          @id @default(uuid()) @db.Uuid
-  incumplimientoId    String          @unique @db.Uuid
-  usuarioId           String          @db.Uuid
-  motivo              String          @db.Text
-  fecha               DateTime        @default(now()) @db.Timestamptz(3)
-  estado              EstadoApelacion @default(PENDIENTE)
-  resolucion          String?         @db.Text
-  fechaResolucion     DateTime?       @db.Timestamptz(3)
-  resueltaPorCuentaId String?         @db.Uuid
-  createdAt           DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime        @updatedAt @db.Timestamptz(3)
+  id                  Uuid                 @id @default(uuid())
+  incumplimientoId    Uuid                 @unique
+  usuarioId           Uuid
+  motivo              String
+  fecha               Timestamptz(3)       @default(now())
+  estado              EstadoApelacion      @default(PENDIENTE)
+  resolucion          String?
+  fechaResolucion     Timestamptz(3)?
+  resueltaPorCuentaId Uuid?
 
-  incumplimiento      Incumplimiento  @relation(fields:[incumplimientoId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  usuario             Usuario         @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  resueltaPor         CuentaAcceso?   @relation("CuentaResolutora", fields:[resueltaPorCuentaId], references:[id], onDelete: SetNull, onUpdate: Cascade)
+  createdAt           Timestamptz(3)       @default(now())
+  updatedAt           temporal.updatedAt()
+
+  incumplimiento      Incumplimiento       @relation(fields:[incumplimientoId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  usuario             Usuario              @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  resueltaPor         CuentaAcceso?        @relation("CuentaResolutora", fields:[resueltaPorCuentaId], references:[id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([usuarioId, estado])
   @@index([estado, fecha])
@@ -283,11 +282,12 @@ model Apelacion {
 // TÉRMINOS
 // -----------------------------------------------------------------------------
 model VersionTerminos {
-  id           String               @id @default(uuid()) @db.Uuid
+  id           Uuid                 @id @default(uuid())
   numero       Int                  @unique
-  titulo       String?              @db.VarChar(180)
-  contenido    String?              @db.Text
-  createdAt    DateTime             @default(now()) @db.Timestamptz(3)
+  titulo       VarChar(180)?
+  contenido    String?
+
+  createdAt    Timestamptz(3)       @default(now())
 
   aceptaciones AceptacionTerminos[]
 
@@ -295,11 +295,12 @@ model VersionTerminos {
 }
 
 model AceptacionTerminos {
-  id                String          @id @default(uuid()) @db.Uuid
-  usuarioId         String          @db.Uuid
-  versionTerminosId String          @db.Uuid
-  fecha             DateTime        @default(now()) @db.Timestamptz(3)
-  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  id                Uuid            @id @default(uuid())
+  usuarioId         Uuid
+  versionTerminosId Uuid
+  fecha             Timestamptz(3)  @default(now())
+
+  createdAt         Timestamptz(3)  @default(now())
 
   usuario           Usuario         @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
   versionTerminos   VersionTerminos @relation(fields:[versionTerminosId], references:[id], onDelete: Restrict, onUpdate: Cascade)
@@ -313,67 +314,84 @@ model AceptacionTerminos {
 // AUTENTICACIÓN
 // -----------------------------------------------------------------------------
 model CuentaAcceso {
-  id                   String      @id @default(uuid()) @db.Uuid
-  usuarioId            String      @unique @db.Uuid
-  email                String      @unique @db.VarChar(254)
-  passwordHash         String      @db.VarChar(255)
-  rol                  RolAcceso   @default(USUARIO)
-  habilitada           Boolean     @default(true)
-  ultimoAcceso         DateTime?   @db.Timestamptz(3)
-  createdAt            DateTime    @default(now()) @db.Timestamptz(3)
-  updatedAt            DateTime    @updatedAt @db.Timestamptz(3)
+  id                   Uuid                 @id @default(uuid())
+  usuarioId            Uuid                 @unique
+  email                VarChar(254)         @unique
+  passwordHash         VarChar(255)
+  rol                  RolAcceso            @default(USUARIO)
+  habilitada           Boolean              @default(true)
+  ultimoAcceso         Timestamptz(3)?
 
-  usuario              Usuario     @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
-  apelacionesResueltas Apelacion[] @relation("CuentaResolutora")
+  createdAt            Timestamptz(3)       @default(now())
+  updatedAt            temporal.updatedAt()
+
+  usuario              Usuario              @relation(fields:[usuarioId], references:[id], onDelete: Restrict, onUpdate: Cascade)
+  apelacionesResueltas Apelacion[]          @relation("CuentaResolutora")
 
   @@index([rol, habilitada])
   @@map("cuentas_acceso")
 }
 
 // -----------------------------------------------------------------------------
-// ENUMERACIONES DEL DOMINIO
+// ENUMERACIONES
 // -----------------------------------------------------------------------------
 enum EstadoEjemplar {
+  @@type("pg/text@1")
+
   DISPONIBLE
   PRESTADO
   NO_DISPONIBLE
 }
 
 enum EstadoPrestamo {
+  @@type("pg/text@1")
+
   PLANIFICADO
   ACTIVO
   FINALIZADO
 }
 
 enum TipoUsuario {
+  @@type("pg/text@1")
+
   ESTUDIANTE
   DOCENTE
   ADMINISTRATIVO
 }
 
 enum EstadoSolicitud {
+  @@type("pg/text@1")
+
   PENDIENTE
   APROBADA
   RECHAZADA
 }
 
 enum EstadoSancion {
+  @@type("pg/text@1")
+
   ACTIVA
   FINALIZADA
 }
 
 enum EstadoRegla {
+  @@type("pg/text@1")
+
   ACTIVA
   INACTIVA
 }
 
 enum EstadoApelacion {
+  @@type("pg/text@1")
+
   PENDIENTE
   ACEPTADA
   RECHAZADA
 }
 
 enum RolAcceso {
+  @@type("pg/text@1")
+
   USUARIO
   OPERADOR
   ADMINISTRADOR
