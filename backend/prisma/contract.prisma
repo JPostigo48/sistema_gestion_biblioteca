@@ -110,7 +110,7 @@ model Usuario {
   tipoUsuario                TipoUsuario
   identificadorInstitucional VarChar(80)?         @unique
   vinculacionVigente         Boolean              @default(true)
-  confianza                  Numeric(5, 2)        @default(100.00)
+  confianza                  Numeric(5, 2)
 
   createdAt                  Timestamptz(3)       @default(now())
   updatedAt                  temporal.updatedAt()

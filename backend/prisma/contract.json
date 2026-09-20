@@ -4216,10 +4216,6 @@
               "columns": {
                 "confianza": {
                   "codecId": "pg/numeric@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 100
-                  },
                   "nativeType": "numeric",
                   "nullable": false,
                   "typeParams": {
@@ -4581,7 +4577,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6829e5b80ad2581abf2e322d1020c377ddc0725da7d2e2021a29cfbed4b7d068"
+    "storageHash": "8b3fc545ac268a096596a6f90ad53442d955beb4fe7a67062546a520c4123218"
   },
   "execution": {
     "executionHash": "4f1e4890be066a85618d386c177e30a8fd4e44f43dfaeb236f358c2165dfe6e0",
