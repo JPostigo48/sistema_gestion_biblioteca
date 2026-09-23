@@ -13,5 +13,6 @@ import { InventoryController } from './presentation/controllers/inventory.contro
       useClass: PrismaInventoryRepository,
     },
   ],
+  exports: [InventoryService],
 })
 export class InventoryModule {}
