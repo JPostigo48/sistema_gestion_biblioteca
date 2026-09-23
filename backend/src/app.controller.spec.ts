@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AppController } from "./app.controller.js";
-import { AppService } from "./app.service.js";
-import { PrismaService } from "./prisma/prisma.service.js";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { PrismaService } from './shared/infrastructure/prisma/prisma.service.js';
 
-describe("AppController", () => {
+describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
@@ -21,9 +21,9 @@ describe("AppController", () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe("root", () => {
-    it("should return the backend status message", () => {
-      expect(appController.getHello()).toBe("Backend funcionando");
+  describe('root', () => {
+    it('should return the backend status message', () => {
+      expect(appController.getHello()).toBe('Backend funcionando');
     });
   });
 });

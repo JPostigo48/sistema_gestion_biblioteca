@@ -1,9 +1,9 @@
-import "dotenv/config";
-import "temporal-polyfill/full/global";
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import postgres from "@prisma/orm-postgres/runtime";
-import type { Contract } from "./contract.d.ts";
-import contractJson from "./contract.json" with { type: "json" };
+import 'dotenv/config';
+import 'temporal-polyfill/full/global';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import postgres from '@prisma/orm-postgres/runtime';
+import type { Contract } from '../../../../prisma/contract.d.ts';
+import contractJson from '../../../../prisma/contract.json' with { type: 'json' };
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {

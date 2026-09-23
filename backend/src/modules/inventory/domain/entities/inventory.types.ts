@@ -1,3 +1,10 @@
+export type InventoryCopyStatus = 'DISPONIBLE' | 'PRESTADO' | 'NO_DISPONIBLE';
+
+export type InventoryCopyStateManaged = Extract<
+  InventoryCopyStatus,
+  'DISPONIBLE' | 'NO_DISPONIBLE'
+>;
+
 export type InventoryCategory = {
   id: string;
   nombre: string;
@@ -24,7 +31,7 @@ export type InventoryCopy = {
   id: string;
   recursoId: string;
   codigoInventario: string;
-  estado: "DISPONIBLE" | "PRESTADO" | "NO_DISPONIBLE";
+  estado: InventoryCopyStatus;
   recurso?: InventoryResource;
   observaciones?: InventoryObservation[];
   createdAt?: Date;

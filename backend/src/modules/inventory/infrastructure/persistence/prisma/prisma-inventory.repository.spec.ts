@@ -1,10 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
-import { InventoryRepository } from "../repositories/inventory.repository.js";
+import { describe, it, expect, vi } from 'vitest';
+import { PrismaInventoryRepository } from './prisma-inventory.repository.js';
 
-describe("InventoryRepository", () => {
-  it("should delegate findAllResources to prisma sql builder", async () => {
-    const query = { sql: "SELECT 1" };
-    const runtime = { query: vi.fn().mockResolvedValue([{ id: "a" }]) };
+describe('PrismaInventoryRepository', () => {
+  it('should delegate findAllResources to prisma sql builder', async () => {
+    const query = { sql: 'SELECT 1' };
+    const runtime = { query: vi.fn().mockResolvedValue([{ id: 'a' }]) };
 
     const queryBuilder = {
       where: vi.fn().mockReturnThis(),
@@ -24,12 +24,12 @@ describe("InventoryRepository", () => {
       },
     };
 
-    const repository = new InventoryRepository(prisma as any);
+    const repository = new PrismaInventoryRepository(prisma as any);
     const result = await repository.findAllResources();
 
     expect(prisma.sql.public.recursos.select).toHaveBeenCalled();
     expect(queryBuilder.build).toHaveBeenCalled();
     expect(runtime.query).toHaveBeenCalledWith(query);
-    expect(result).toEqual([{ id: "a" }]);
+    expect(result).toEqual([{ id: 'a' }]);
   });
 });

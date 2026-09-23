@@ -1,5 +1,5 @@
-import { Controller, Get, InternalServerErrorException } from "@nestjs/common";
-import { PrismaService } from "./prisma/prisma.service.js";
+import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
+import { PrismaService } from './shared/infrastructure/prisma/prisma.service.js';
 
 @Controller()
 export class AppController {
@@ -7,15 +7,15 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return "Backend funcionando";
+    return 'Backend funcionando';
   }
 
-  @Get("health/database")
+  @Get('health/database')
   async checkDatabase() {
     try {
       // 1. Construimos la consulta estructurada usando tu esquema
       const result = await this.prisma.sql.public.usuarios
-        .select("id")
+        .select('id')
         .limit(1)
         .build();
 
@@ -25,19 +25,19 @@ export class AppController {
 
       return {
         ok: true,
-        database: "postgresql",
-        table: "usuarios",
+        database: 'postgresql',
+        table: 'usuarios',
         rows: rows.length,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido';
 
       throw new InternalServerErrorException({
         ok: false,
-        database: "postgresql",
+        database: 'postgresql',
         error: errorMessage,
       });
     }
   }
 }
-

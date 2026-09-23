@@ -25,6 +25,43 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Estructura del backend
+
+El código de aplicación se organiza por módulos. Cada módulo incorpora únicamente
+las capas que necesita:
+
+```text
+src/
+├── modules/
+│   └── inventory/
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       ├── presentation/
+│       └── inventory.module.ts
+└── shared/
+    └── infrastructure/prisma/
+```
+
+`domain` no depende de NestJS ni de Prisma. Las implementaciones concretas de
+persistencia se encuentran en `infrastructure`, mientras que los controladores y
+DTO HTTP pertenecen a `presentation`.
+
+## Prisma 8
+
+Este proyecto usa Prisma 8 contract-first. Por ello, la fuente del modelo se
+llama [`prisma/contract.prisma`](prisma/contract.prisma), no `schema.prisma`.
+Las migraciones permanecen en `prisma/migrations/` y los artefactos
+`contract.json` y `contract.d.ts` se generan junto al contrato.
+
+```bash
+npm run prisma:generate
+npm run prisma:seed
+```
+
+`prisma/seed.ts` orquesta los seeds ubicados en `prisma/seeds/`. Los seeds usan
+el runtime de Prisma directamente y no dependen de controladores NestJS.
+
 ## Project setup
 
 ```bash
