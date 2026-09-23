@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
-  getHello(): string {
+  getStatus(): string {
     return 'Backend funcionando';
   }
 
