@@ -8,7 +8,7 @@ export class ListUserTermsAcceptancesUseCase {
   constructor(private readonly terms: TermsRepository) {}
 
   async execute(
-    input: ListUserTermsAcceptancesInput,
+    _input: ListUserTermsAcceptancesInput,
   ): Promise<TermsAcceptance[]> {
     // TODO
     throw new Error('Not implemented');

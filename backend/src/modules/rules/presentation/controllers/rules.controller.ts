@@ -25,12 +25,18 @@ export class RulesController {
 
   @Put(':ruleId')
   update(@Param('ruleId') ruleId: string, @Body() input: UpdateRuleDto) {
-    return this.updateRule.execute({ ruleId, ...input });
+    return this.updateRule.execute({
+      ruleId,
+      title: input.title,
+      description: input.description,
+      penaltyPercentage: input.penaltyPercentage,
+      consequence: input.consequence,
+    });
   }
 
   @Patch(':ruleId/status')
   setStatus(@Param('ruleId') ruleId: string, @Body() input: SetRuleStatusDto) {
-    return this.setRuleStatus.execute({ ruleId, ...input });
+    return this.setRuleStatus.execute({ ruleId, status: input.status });
   }
 
   @Get('active')

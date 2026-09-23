@@ -13,13 +13,11 @@ export class AppController {
   @Get('health/database')
   async checkDatabase() {
     try {
-      // 1. Construimos la consulta estructurada usando tu esquema
-      const result = await this.prisma.sql.public.usuarios
+      const result = this.prisma.sql.public.usuarios
         .select('id')
         .limit(1)
         .build();
 
-      // 2. Obtenemos el runtime y ejecutamos la consulta de forma nativa en Prisma 8
       const runtime = (this.prisma.client as any).runtime();
       const rows = await runtime.query(result);
 

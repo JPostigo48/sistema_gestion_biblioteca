@@ -11,22 +11,22 @@ import {
 export class PrismaAppealRepository implements AppealRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: SubmitAppealData): Promise<Appeal> {
+  async create(_data: SubmitAppealData): Promise<Appeal> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findById(appealId: string): Promise<Appeal | null> {
+  async findById(_appealId: string): Promise<Appeal | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findByViolationId(violationId: string): Promise<Appeal | null> {
+  async findByViolationId(_violationId: string): Promise<Appeal | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async resolve(data: ResolveAppealData): Promise<Appeal> {
+  async resolve(_data: ResolveAppealData): Promise<Appeal> {
     // TODO
     throw new Error('Not implemented');
   }

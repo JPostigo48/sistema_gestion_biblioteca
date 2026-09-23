@@ -7,7 +7,7 @@ import { LoanRepository } from '../../domain/repositories/loan.repository.js';
 export class ListOverdueLoansUseCase {
   constructor(private readonly loans: LoanRepository) {}
 
-  async execute(input: ListOverdueLoansInput): Promise<Loan[]> {
+  async execute(_input: ListOverdueLoansInput): Promise<Loan[]> {
     // TODO
     throw new Error('Not implemented');
   }

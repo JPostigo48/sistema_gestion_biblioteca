@@ -7,7 +7,7 @@ import { LoanRepository } from '../../domain/repositories/loan.repository.js';
 export class GetLoanUseCase {
   constructor(private readonly loans: LoanRepository) {}
 
-  async execute(input: GetLoanInput): Promise<Loan> {
+  async execute(_input: GetLoanInput): Promise<Loan> {
     // TODO
     throw new Error('Not implemented');
   }

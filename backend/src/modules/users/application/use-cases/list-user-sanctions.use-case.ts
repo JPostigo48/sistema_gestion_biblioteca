@@ -7,7 +7,7 @@ import { UserRepository } from '../../domain/repositories/user.repository.js';
 export class ListUserSanctionsUseCase {
   constructor(private readonly users: UserRepository) {}
 
-  async execute(input: GetUserInput): Promise<Sanction[]> {
+  async execute(_input: GetUserInput): Promise<Sanction[]> {
     // TODO
     throw new Error('Not implemented');
   }

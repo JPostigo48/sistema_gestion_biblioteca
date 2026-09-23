@@ -16,21 +16,21 @@ export class PrismaRegistrationRequestRepository extends RegistrationRequestRepo
   }
 
   async create(
-    data: CreateRegistrationRequestData,
+    _data: CreateRegistrationRequestData,
   ): Promise<RegistrationRequest> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findById(requestId: string): Promise<RegistrationRequest | null> {
+  async findById(_requestId: string): Promise<RegistrationRequest | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
   async updateStatus(
-    requestId: string,
-    status: RegistrationRequestStatus,
-    approvedUserId?: string,
+    _requestId: string,
+    _status: RegistrationRequestStatus,
+    _approvedUserId?: string,
   ): Promise<RegistrationRequest> {
     // TODO
     throw new Error('Not implemented');

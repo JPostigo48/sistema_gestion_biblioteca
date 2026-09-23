@@ -13,7 +13,7 @@ export class CreateLoanUseCase {
     private readonly inventory: LoanInventoryPort,
   ) {}
 
-  async execute(input: CreateLoanInput): Promise<Loan> {
+  async execute(_input: CreateLoanInput): Promise<Loan> {
     // TODO
     throw new Error('Not implemented');
   }

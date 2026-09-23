@@ -10,27 +10,27 @@ import {
 export class PrismaAccessAccountRepository implements AccessAccountRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateAccessAccountData): Promise<AccessAccount> {
+  async create(_data: CreateAccessAccountData): Promise<AccessAccount> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findById(accountId: string): Promise<AccessAccount | null> {
+  async findById(_accountId: string): Promise<AccessAccount | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findByEmail(email: string): Promise<AccessAccount | null> {
+  async findByEmail(_email: string): Promise<AccessAccount | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findByUserId(userId: string): Promise<AccessAccount | null> {
+  async findByUserId(_userId: string): Promise<AccessAccount | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async recordAccess(accountId: string, accessedAt: Date): Promise<void> {
+  async recordAccess(_accountId: string, _accessedAt: Date): Promise<void> {
     // TODO
     throw new Error('Not implemented');
   }

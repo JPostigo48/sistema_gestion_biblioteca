@@ -14,25 +14,25 @@ import {
 export class PrismaRuleRepository implements RuleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: RuleVersionData): Promise<UsageRule> {
+  async create(_data: RuleVersionData): Promise<UsageRule> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findById(ruleId: string): Promise<UsageRule | null> {
+  async findById(_ruleId: string): Promise<UsageRule | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
   async addVersion(
-    ruleId: string,
-    data: RuleVersionData,
+    _ruleId: string,
+    _data: RuleVersionData,
   ): Promise<RuleVersion> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async setStatus(ruleId: string, status: RuleStatus): Promise<RuleVersion> {
+  async setStatus(_ruleId: string, _status: RuleStatus): Promise<RuleVersion> {
     // TODO
     throw new Error('Not implemented');
   }

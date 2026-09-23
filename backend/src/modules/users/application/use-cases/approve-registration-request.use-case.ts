@@ -11,7 +11,7 @@ export class ApproveRegistrationRequestUseCase {
     private readonly users: UserRepository,
   ) {}
 
-  async execute(input: ReviewRegistrationRequestInput): Promise<User> {
+  async execute(_input: ReviewRegistrationRequestInput): Promise<User> {
     // TODO
     throw new Error('Not implemented');
   }

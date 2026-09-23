@@ -7,7 +7,7 @@ import { AccessAccountRepository } from '../../domain/repositories/access-accoun
 export class GetAccessAccountUseCase {
   constructor(private readonly accounts: AccessAccountRepository) {}
 
-  async execute(input: GetAccessAccountInput): Promise<AccessAccount> {
+  async execute(_input: GetAccessAccountInput): Promise<AccessAccount> {
     // TODO
     throw new Error('Not implemented');
   }

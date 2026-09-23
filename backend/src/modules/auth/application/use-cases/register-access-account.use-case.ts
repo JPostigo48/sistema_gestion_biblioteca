@@ -13,7 +13,7 @@ export class RegisterAccessAccountUseCase {
     private readonly credentials: CredentialsPort,
   ) {}
 
-  async execute(input: RegisterAccessAccountInput): Promise<AccessAccount> {
+  async execute(_input: RegisterAccessAccountInput): Promise<AccessAccount> {
     // TODO
     throw new Error('Not implemented');
   }

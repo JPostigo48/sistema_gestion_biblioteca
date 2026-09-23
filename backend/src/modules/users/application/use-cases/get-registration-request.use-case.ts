@@ -8,7 +8,7 @@ export class GetRegistrationRequestUseCase {
   constructor(private readonly requests: RegistrationRequestRepository) {}
 
   async execute(
-    input: GetRegistrationRequestInput,
+    _input: GetRegistrationRequestInput,
   ): Promise<RegistrationRequest> {
     // TODO
     throw new Error('Not implemented');

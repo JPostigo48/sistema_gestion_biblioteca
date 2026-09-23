@@ -11,12 +11,12 @@ import {
 export class PrismaLoanRepository implements LoanRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateLoanData): Promise<Loan> {
+  async create(_data: CreateLoanData): Promise<Loan> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findById(loanId: string): Promise<Loan | null> {
+  async findById(_loanId: string): Promise<Loan | null> {
     // TODO
     throw new Error('Not implemented');
   }
@@ -26,26 +26,26 @@ export class PrismaLoanRepository implements LoanRepository {
     throw new Error('Not implemented');
   }
 
-  async findByUserId(userId: string): Promise<Loan[]> {
+  async findByUserId(_userId: string): Promise<Loan[]> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findOverdue(at: Date): Promise<Loan[]> {
+  async findOverdue(_at: Date): Promise<Loan[]> {
     // TODO
     throw new Error('Not implemented');
   }
 
   async hasOverlappingLoan(
-    copyId: string,
-    startsAt: Date,
-    endsAt: Date,
+    _copyId: string,
+    _startsAt: Date,
+    _endsAt: Date,
   ): Promise<boolean> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async registerReturn(data: RegisterLoanReturnData): Promise<LoanReturn> {
+  async registerReturn(_data: RegisterLoanReturnData): Promise<LoanReturn> {
     // TODO
     throw new Error('Not implemented');
   }

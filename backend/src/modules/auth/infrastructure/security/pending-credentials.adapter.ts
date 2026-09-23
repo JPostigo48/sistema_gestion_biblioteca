@@ -3,12 +3,12 @@ import { CredentialsPort } from '../../application/ports/credentials.port.js';
 
 @Injectable()
 export class PendingCredentialsAdapter implements CredentialsPort {
-  async hash(password: string): Promise<string> {
+  async hash(_password: string): Promise<string> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async matches(password: string, passwordHash: string): Promise<boolean> {
+  async matches(_password: string, _passwordHash: string): Promise<boolean> {
     // TODO
     throw new Error('Not implemented');
   }

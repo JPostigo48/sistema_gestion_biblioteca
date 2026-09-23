@@ -11,7 +11,7 @@ export class SubmitAppealUseCase {
     private readonly violations: ViolationRepository,
   ) {}
 
-  async execute(input: SubmitAppealInput): Promise<Appeal> {
+  async execute(_input: SubmitAppealInput): Promise<Appeal> {
     // TODO
     throw new Error('Not implemented');
   }

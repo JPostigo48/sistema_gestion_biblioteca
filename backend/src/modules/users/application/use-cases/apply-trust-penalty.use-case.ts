@@ -7,7 +7,7 @@ import { UserRepository } from '../../domain/repositories/user.repository.js';
 export class ApplyTrustPenaltyUseCase {
   constructor(private readonly users: UserRepository) {}
 
-  async execute(input: ApplyTrustPenaltyInput): Promise<UserTrustProfile> {
+  async execute(_input: ApplyTrustPenaltyInput): Promise<UserTrustProfile> {
     // TODO
     throw new Error('Not implemented');
   }

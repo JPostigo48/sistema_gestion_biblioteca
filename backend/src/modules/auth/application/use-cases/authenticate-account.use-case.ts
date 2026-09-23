@@ -16,7 +16,7 @@ export class AuthenticateAccountUseCase {
   ) {}
 
   async execute(
-    input: AuthenticateAccountInput,
+    _input: AuthenticateAccountInput,
   ): Promise<AuthenticatedIdentity> {
     // TODO
     throw new Error('Not implemented');

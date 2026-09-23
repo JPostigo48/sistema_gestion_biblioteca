@@ -11,7 +11,7 @@ export class ReturnLoanUseCase {
     private readonly inventory: LoanInventoryPort,
   ) {}
 
-  async execute(input: ReturnLoanInput): Promise<Loan> {
+  async execute(_input: ReturnLoanInput): Promise<Loan> {
     // TODO
     throw new Error('Not implemented');
   }

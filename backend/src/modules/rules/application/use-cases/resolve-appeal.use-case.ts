@@ -7,7 +7,7 @@ import { AppealRepository } from '../../domain/repositories/appeal.repository.js
 export class ResolveAppealUseCase {
   constructor(private readonly appeals: AppealRepository) {}
 
-  async execute(input: ResolveAppealInput): Promise<Appeal> {
+  async execute(_input: ResolveAppealInput): Promise<Appeal> {
     // TODO
     throw new Error('Not implemented');
   }

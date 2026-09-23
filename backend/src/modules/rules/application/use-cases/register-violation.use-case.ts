@@ -13,7 +13,7 @@ export class RegisterViolationUseCase {
     private readonly users: UserTrustPort,
   ) {}
 
-  async execute(input: RegisterViolationInput): Promise<Violation> {
+  async execute(_input: RegisterViolationInput): Promise<Violation> {
     // TODO
     throw new Error('Not implemented');
   }

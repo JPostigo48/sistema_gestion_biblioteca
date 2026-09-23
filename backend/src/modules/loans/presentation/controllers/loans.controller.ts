@@ -49,6 +49,10 @@ export class LoansController {
     @Param('loanId') loanId: string,
     @Body() input: ReturnLoanDto,
   ) {
-    return this.returnLoan.execute({ loanId, ...input });
+    return this.returnLoan.execute({
+      loanId,
+      returnedAt: input.returnedAt,
+      observation: input.observation,
+    });
   }
 }

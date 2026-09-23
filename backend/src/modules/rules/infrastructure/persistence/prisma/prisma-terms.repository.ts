@@ -14,22 +14,22 @@ import {
 export class PrismaTermsRepository implements TermsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createVersion(data: CreateTermsVersionData): Promise<TermsVersion> {
+  async createVersion(_data: CreateTermsVersionData): Promise<TermsVersion> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findVersionById(versionId: string): Promise<TermsVersion | null> {
+  async findVersionById(_versionId: string): Promise<TermsVersion | null> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async accept(data: AcceptTermsVersionData): Promise<TermsAcceptance> {
+  async accept(_data: AcceptTermsVersionData): Promise<TermsAcceptance> {
     // TODO
     throw new Error('Not implemented');
   }
 
-  async findAcceptancesByUserId(userId: string): Promise<TermsAcceptance[]> {
+  async findAcceptancesByUserId(_userId: string): Promise<TermsAcceptance[]> {
     // TODO
     throw new Error('Not implemented');
   }

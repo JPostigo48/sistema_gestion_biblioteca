@@ -26,7 +26,12 @@ export class ViolationsController {
     @Param('violationId') violationId: string,
     @Body() input: SubmitAppealDto,
   ) {
-    return this.submitAppeal.execute({ violationId, ...input });
+    return this.submitAppeal.execute({
+      violationId,
+      userId: input.userId,
+      reason: input.reason,
+      submittedAt: input.submittedAt,
+    });
   }
 
   @Patch('appeals/:appealId/resolution')
@@ -34,6 +39,12 @@ export class ViolationsController {
     @Param('appealId') appealId: string,
     @Body() input: ResolveAppealDto,
   ) {
-    return this.resolveAppeal.execute({ appealId, ...input });
+    return this.resolveAppeal.execute({
+      appealId,
+      status: input.status,
+      resolution: input.resolution,
+      resolvedAt: input.resolvedAt,
+      resolvedByAccountId: input.resolvedByAccountId,
+    });
   }
 }
