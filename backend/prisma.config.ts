@@ -14,8 +14,4 @@ export default definePrismaConfig({
       dir: './prisma/migrations',
     },
   }),
-
-  skills: {
-    agents: ['claude', 'cursor', 'agents', 'devin'],
-  },
 });
