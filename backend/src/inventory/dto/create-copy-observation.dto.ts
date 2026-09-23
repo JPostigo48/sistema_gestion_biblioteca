@@ -1,10 +1,10 @@
 import { Transform } from "class-transformer";
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
-export class CreateCopyDto {
+export class CreateCopyObservationDto {
   @IsString()
   @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   @IsNotEmpty()
-  @MaxLength(80)
-  codigoInventario!: string;
+  @MaxLength(2000)
+  descripcion!: string;
 }

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "temporal-polyfill/full/global";
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import postgres from "@prisma/orm-postgres/runtime";
 import type { Contract } from "./contract.d.ts";

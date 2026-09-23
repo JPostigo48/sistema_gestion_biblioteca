@@ -1,15 +1,16 @@
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 
-export class CreateResourceDto {
+export class UpdateResourceDto {
+  @IsOptional()
   @IsUUID()
-  categoriaId!: string;
+  categoriaId?: string;
 
+  @IsOptional()
   @IsString()
   @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
-  @IsNotEmpty()
   @MaxLength(180)
-  nombre!: string;
+  nombre?: string;
 
   @IsOptional()
   @IsString()

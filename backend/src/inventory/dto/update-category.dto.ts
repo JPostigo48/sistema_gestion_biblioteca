@@ -1,15 +1,16 @@
 import { Transform, Type } from "class-transformer";
-import { IsInt, IsNotEmpty, IsString, MaxLength, Min } from "class-validator";
+import { IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator";
 
-export class CreateCategoryDto {
+export class UpdateCategoryDto {
+  @IsOptional()
   @IsString()
   @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
-  @IsNotEmpty()
   @MaxLength(120)
-  nombre!: string;
+  nombre?: string;
 
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  tiempoMaximoPrestamoDias!: number;
+  tiempoMaximoPrestamoDias?: number;
 }
