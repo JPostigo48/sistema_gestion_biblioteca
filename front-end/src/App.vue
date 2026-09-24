@@ -6,7 +6,7 @@
     <div v-show="view === 'main'" class="flex flex-col h-full overflow-hidden">
       <header class="bg-[#1e3a5f] text-white pt-4 pb-3 px-6 text-center rounded-b-[24px] shrink-0">
         <div class="flex items-center justify-center mb-1">
-          <img src="/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+          <img src="/logo.png" alt="Logo" class="w-20 h-20 object-contain">
         </div>
         <h1 class="text-lg font-bold tracking-tight">CS Préstamos</h1>
         <p class="text-[11px] text-blue-200">Escuela de Cs. de la Computación</p>
@@ -14,11 +14,11 @@
 
       <main class="px-6 py-2.5 flex flex-col gap-2 flex-grow justify-center overflow-hidden">
         <div class="text-center">
-          <h2 class="text-slate-800 font-bold text-sm mb-0.5">Inicia sesión</h2>
+          <h2 class="text-slate-800 font-bold text-lg mb-0.5">Inicia sesión</h2>
           <p class="text-slate-500 text-[11px]">Usa tu cuenta institucional</p>
         </div>
 
-        <button @click="view = 'google'" class="w-full py-2 px-4 border border-slate-300 rounded-xl bg-white hover:bg-slate-50 transition text-slate-700 text-xs font-medium flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+        <button @click="showGoogleView" class="w-full py-2 px-4 border border-slate-300 rounded-xl bg-white hover:bg-slate-50 transition text-slate-700 text-xs font-medium flex items-center justify-center gap-2 shadow-sm cursor-pointer">
           <img src="/images.png" alt="Google Logo" class="w-3.5 h-3.5 object-contain"> Continuar con Google
         </button>
 
@@ -55,27 +55,6 @@
         <div class="text-center">
           <a href="#" @click.prevent="showRegisterView" class="text-blue-600 text-xs font-medium hover:underline">¿No tienes cuenta? Regístrate</a>
         </div>
-
-        <!-- Cuentas Demo interactivas -->
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 mt-0.5">
-          <p class="text-[9px] font-bold text-slate-500 tracking-wide text-center mb-1">CUENTAS DEMO [CLAVE: 1234]</p>
-          <div @click="selectDemo('estudiante@unsa.edu.pe')" class="flex justify-between items-center text-[10px] text-slate-700 mb-0.5 px-1 py-0.5 rounded hover:bg-blue-50 cursor-pointer transition">
-            <span>estudiante@unsa.edu.pe</span>
-            <span class="text-blue-600 bg-blue-100 px-2 py-0.5 rounded font-semibold text-[9px]">Estudiante</span>
-          </div>
-          <div @click="selectDemo('operador@unsa.edu.pe')" class="flex justify-between items-center text-[10px] text-slate-700 mb-0.5 px-1 py-0.5 rounded hover:bg-orange-50 cursor-pointer transition">
-            <span>operador@unsa.edu.pe</span>
-            <span class="text-orange-600 bg-orange-100 px-2 py-0.5 rounded font-semibold text-[9px]">Operador</span>
-          </div>
-          <div @click="selectDemo('admin@unsa.edu.pe')" class="flex justify-between items-center text-[10px] text-slate-700 mb-0.5 px-1 py-0.5 rounded hover:bg-purple-50 cursor-pointer transition">
-            <span>admin@unsa.edu.pe</span>
-            <span class="text-purple-600 bg-purple-100 px-2 py-0.5 rounded font-semibold text-[9px]">Admin</span>
-          </div>
-          <div @click="selectDemo('cherrera@unsa.edu.pe')" class="flex justify-between items-center text-[10px] text-slate-700 px-1 py-0.5 rounded hover:bg-blue-50 cursor-pointer transition">
-            <span>cherrera@unsa.edu.pe</span>
-            <span class="text-blue-600 bg-blue-100 px-2 py-0.5 rounded font-semibold text-[9px]">Estudiante</span>
-          </div>
-        </div>
       </main>
 
       <footer class="text-center py-2 bg-white border-t border-slate-100 text-[9px] text-slate-400 shrink-0 leading-tight px-4">
@@ -86,10 +65,14 @@
 
     <!-- ================= VISTA 2: ACCESO CON GOOGLE ================= -->
     <div v-show="view === 'google'" class="flex flex-col h-full overflow-hidden">
-      <header class="bg-[#1e3a5f] text-white pt-6 pb-4 px-6 text-center rounded-b-[24px] shrink-0">
+      <header class="bg-[#1e3a5f] text-white pt-4 pb-3 px-6 text-center rounded-b-[24px] shrink-0">
+        <div class="flex items-center justify-center mb-1">
+          <img src="/logo.png" alt="Logo" class="w-20 h-20 object-contain">
+        </div>
         <h1 class="text-lg font-bold tracking-tight">CS Préstamos</h1>
-        <p class="text-xs text-blue-200 mt-0.5">Escuela de Cs. de la Computación</p>
+        <p class="text-[11px] text-blue-200">Escuela de Cs. de la Computación</p>
       </header>
+
       <main class="p-6 flex flex-col gap-3 flex-grow justify-center">
         <div class="flex flex-col items-center justify-center mb-1">
           <div class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center shadow-sm mb-1.5 p-2 bg-white">
@@ -98,12 +81,30 @@
           <h2 class="text-center text-slate-800 font-semibold text-sm mb-0.5">Acceso con Google</h2>
           <p class="text-center text-slate-500 text-xs">Ingresa tu correo institucional</p>
         </div>
+
         <div class="flex flex-col gap-1 mt-1">
           <label class="text-[10px] font-bold text-slate-600 tracking-wider">CORREO @UNSA.EDU.PE</label>
-          <input type="text" placeholder="usuario@unsa.edu.pe" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-blue-500">
+          <div class="w-full flex items-center px-3 py-2 border border-slate-300 rounded-xl text-xs text-slate-700 focus-within:border-blue-500">
+            <input
+              type="text"
+              v-model="googleEmailLocal"
+              @input="onGoogleEmailInput"
+              @keyup.enter="handleGoogleContinue"
+              placeholder="usuario"
+              class="flex-grow min-w-0 outline-none border-none p-0 bg-transparent text-slate-700"
+            >
+            <span class="text-slate-400 whitespace-nowrap ml-1">@unsa.edu.pe</span>
+          </div>
           <span class="text-[10px] text-slate-400 mt-0.5">Solo cuentas @unsa.edu.pe</span>
         </div>
-        <button class="w-full py-2.5 bg-slate-500 hover:bg-slate-600 transition text-white rounded-xl text-xs font-bold shadow-sm mt-2 cursor-pointer">
+
+        <!-- Mensaje de error de validación -->
+        <div v-if="googleError" class="flex items-start gap-1.5 bg-red-50 border border-red-200 text-red-600 rounded-xl px-3 py-2 text-[11px]">
+          <span>⚠️</span>
+          <span>{{ googleError }}</span>
+        </div>
+
+        <button @click="handleGoogleContinue" class="w-full py-2.5 bg-[#1e3a5f] hover:bg-[#152a45] transition text-white rounded-xl text-xs font-bold shadow-sm mt-2 cursor-pointer">
           Continuar
         </button>
         <button @click="showMainView" class="w-full py-1.5 text-center text-slate-600 text-xs font-medium hover:text-slate-800 cursor-pointer">
@@ -120,7 +121,7 @@
     <div v-show="view === 'register'" class="flex flex-col h-full bg-white overflow-hidden">
       <header class="bg-[#1e3a5f] text-white pt-4 pb-3 px-6 text-center rounded-b-[24px] shrink-0">
         <div class="flex items-center justify-center mb-1">
-          <img src="/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+          <img src="/logo.png" alt="Logo" class="w-20 h-20 object-contain">
         </div>
         <h1 class="text-lg font-bold tracking-tight">CS Préstamos</h1>
         <p class="text-[10px] text-blue-200">Escuela de Cs. de la Computación</p>
@@ -157,7 +158,7 @@
           <div class="bg-slate-100 px-3 py-1.5 border-b border-slate-200 shrink-0">
             <h3 class="font-bold text-slate-800 text-[11px]">Reglas de Negocio</h3>
           </div>
-          
+
           <div ref="registerScroll" @scroll="checkRegisterScroll" class="p-2.5 overflow-y-auto text-[10px] text-slate-700 space-y-2.5">
             <div>
               <h4 class="font-bold text-slate-800 mb-0.5">Acceso y Disponibilidad</h4>
@@ -241,11 +242,23 @@ export default {
   name: 'App',
   data() {
     return {
-      view: 'main',             // 'main' | 'google' | 'register'
+      view: 'main',            // 'main' | 'google' | 'register'
       passwordVisible: false,
       emailInput: 'estudiante@unsa.edu.pe',
       password: '1234',
       loggingIn: false,
+
+      // Vista Google
+      googleEmailLocal: '',
+      googleError: null,
+
+      // Cuentas registradas en el sistema (demo)
+      registeredEmails: [
+        'estudiante@unsa.edu.pe',
+        'operador@unsa.edu.pe',
+        'admin@unsa.edu.pe',
+        'cherrera@unsa.edu.pe'
+      ],
 
       // Registro vista register
       passwordVisibleRegister: false,
@@ -255,12 +268,7 @@ export default {
     }
   },
   methods: {
-    selectDemo(email) {
-      this.emailInput = email
-      this.password = '1234'
-    },
     handleLogin() {
-      // Validación obligatoria del dominio @unsa.edu.pe
       if (!this.emailInput || !this.emailInput.endsWith('@unsa.edu.pe')) {
         alert('Acceso denegado: Solo se permiten correos institucionales con el dominio @unsa.edu.pe')
         return
@@ -275,6 +283,43 @@ export default {
     showMainView() {
       this.view = 'main'
       this.loggingIn = false
+    },
+    showGoogleView() {
+      this.view = 'google'
+      this.googleEmailLocal = ''
+      this.googleError = null
+    },
+    onGoogleEmailInput() {
+      this.googleError = null
+      this.googleEmailLocal = this.stripGoogleDomain(this.googleEmailLocal)
+    },
+    stripGoogleDomain(value) {
+      const domain = '@unsa.edu.pe'
+      if (value.toLowerCase().endsWith(domain)) {
+        return value.slice(0, value.length - domain.length)
+      }
+      return value
+    },
+    handleGoogleContinue() {
+      // Por si el dominio llegó sin pasar por el evento @input (ej. autocompletado)
+      const local = this.stripGoogleDomain(this.googleEmailLocal.trim())
+
+      // Validación de formato: debe existir texto y no contener espacios ni "@" restantes
+      if (!local || /[\s@]/.test(local)) {
+        this.googleError = 'Solo se permiten correos institucionales @unsa.edu.pe'
+        return
+      }
+
+      const fullEmail = local.toLowerCase() + '@unsa.edu.pe'
+
+      // Validación contra las cuentas existentes en el sistema
+      if (!this.registeredEmails.includes(fullEmail)) {
+        this.googleError = 'Este correo no está registrado en el sistema.'
+        return
+      }
+
+      this.googleError = null
+      alert('¡Inicio de sesión exitoso con Google usando ' + fullEmail + '!')
     },
     showRegisterView() {
       this.view = 'register'
