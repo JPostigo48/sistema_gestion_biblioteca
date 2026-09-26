@@ -34,6 +34,7 @@ model Recurso {
 
   @@index([categoriaId])
   @@index([nombre])
+  @@unique([categoriaId, nombre])
   @@map("recursos")
 }
 

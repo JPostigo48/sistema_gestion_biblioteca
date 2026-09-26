@@ -3765,7 +3765,14 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "categoriaId",
+                    "nombre"
+                  ]
+                }
+              ]
             },
             "reglas_uso": {
               "columns": {
@@ -4577,7 +4584,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "8b3fc545ac268a096596a6f90ad53442d955beb4fe7a67062546a520c4123218"
+    "storageHash": "46dfe80fa0d1d43d0647c5b74220876e5313bcf4ca486f7f3fef043ffd06c1f5"
   },
   "execution": {
     "executionHash": "4f1e4890be066a85618d386c177e30a8fd4e44f43dfaeb236f358c2165dfe6e0",
