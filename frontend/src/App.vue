@@ -153,7 +153,7 @@
               </div>
             </template>
 
-            <!-- Registro -->
+            <!-- ================= REGISTRO (CON REGLAS DE NEGOCIO COMPLETAS) ================= -->
             <template v-if="view === 'register'">
               <header class="bg-[#1e3a5f] text-white pt-6 pb-4 px-6 text-center rounded-b-[24px]">
                 <h1 class="text-xl font-bold tracking-tight">CS Préstamos</h1>
@@ -179,20 +179,55 @@
                     </span>
                   </div>
                 </div>
-                <div class="border border-slate-200 rounded-xl flex flex-col bg-slate-50 h-32">
-                  <div class="bg-slate-100 px-3 py-2 border-b border-slate-200">
-                    <h3 class="font-bold text-slate-800 text-xs">Reglas de Negocio</h3>
+
+                <!-- Contenedor de Reglas de Negocio -->
+                <div class="border border-slate-200 rounded-xl flex flex-col bg-slate-50 h-48 md:h-40">
+                  <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex-shrink-0">
+                    <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Reglas de Negocio EPCC</h3>
                   </div>
-                  <div ref="registerScroll" @scroll="checkRegisterScroll" class="p-3 overflow-y-auto text-xs text-slate-700 h-full">
-                    <p>Desplácese hasta el final para habilitar la casilla de aceptación de términos y condiciones de la EPCC. (Contenido de reglas...)</p>
-                    <br><br><br><br><br><p>Fin de las reglas.</p>
+                  <div ref="registerScroll" @scroll="checkRegisterScroll" class="p-4 overflow-y-auto text-xs text-slate-700 h-full space-y-4">
+                    <p class="font-medium text-slate-600">Desplácese hasta el final para habilitar la casilla de aceptación de términos y condiciones de la EPCC.</p>
+                    
+                    <div class="space-y-2">
+                      <h4 class="font-bold text-slate-800">1. Condiciones Generales</h4>
+                      <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                        <li>El uso de los equipos es estrictamente académico y personal.</li>
+                        <li>Todo artículo debe devolverse con todos sus accesorios completos (verificado en checklist por el operador).</li>
+                        <li>Usuarios con cuentas suspendidas no podrán realizar nuevas reservas.</li>
+                      </ul>
+                    </div>
+
+                    <div class="space-y-2">
+                      <h4 class="font-bold text-slate-800">2. Categorías y Tiempos Máximos</h4>
+                      <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                        <li><strong>Electrónicos (Laptops, Tablets, etc.):</strong> De 3 a 7 días hábiles según el equipo.</li>
+                        <li><strong>Libros:</strong> Máximo 14 días calendarios.</li>
+                        <li><strong>Deportes:</strong> Máximo 2 días calendarios.</li>
+                      </ul>
+                    </div>
+
+                    <div class="space-y-2">
+                      <h4 class="font-bold text-slate-800">3. Sistema de Sanciones (RN-11)</h4>
+                      <p class="text-slate-600">La devolución fuera del plazo establecido aplica sanciones automáticas e irrevocables al momento de la entrega:</p>
+                      <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                        <li><strong>Sanción Leve (Equipos Deportivos):</strong> 7 días de suspensión.</li>
+                        <li><strong>Sanción Moderada (Libros):</strong> 15 días de suspensión.</li>
+                        <li><strong>Sanción Grave (Electrónicos):</strong> 30 días de suspensión.</li>
+                      </ul>
+                    </div>
+
+                    <div class="space-y-2">
+                      <h4 class="font-bold text-slate-800">4. Pérdidas y Daños</h4>
+                      <p class="text-slate-600 pb-4">En caso de pérdida o daño irreparable, el estudiante deberá reponer el equipo por uno de iguales o mejores características en un plazo no mayor a 30 días, manteniéndose suspendido hasta la reposición.</p>
+                    </div>
                   </div>
                 </div>
+
                 <div class="flex items-center gap-2 mt-1">
-                  <input type="checkbox" v-model="registerChecked" :disabled="!canCheckRegister" class="w-5 h-5 text-blue-600 rounded border-slate-300 disabled:opacity-50">
-                  <label class="text-xs text-slate-600">He leído y acepto todas las reglas de negocio.</label>
+                  <input type="checkbox" v-model="registerChecked" :disabled="!canCheckRegister" class="w-5 h-5 text-blue-600 rounded border-slate-300 disabled:opacity-50 cursor-pointer">
+                  <label class="text-xs text-slate-600 select-none">He leído y acepto todas las reglas de negocio.</label>
                 </div>
-                <button :disabled="!(canCheckRegister && registerChecked)" class="w-full py-3 text-white rounded-xl text-sm font-bold bg-[#1e3a5f] hover:bg-[#152a45] disabled:bg-slate-400 mt-2">
+                <button :disabled="!(canCheckRegister && registerChecked)" class="w-full py-3 text-white rounded-xl text-sm font-bold transition-colors bg-[#1e3a5f] hover:bg-[#152a45] disabled:bg-slate-400 mt-2">
                   Registrarse
                 </button>
                 <div class="text-center">
