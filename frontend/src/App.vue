@@ -39,6 +39,9 @@
           <button @click="view = 'admin-users'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors', view === 'admin-users' ? 'bg-blue-600/30 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white']">
             <span>👥</span> Usuarios
           </button>
+          <button @click="view = 'admin-catalog'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors', view === 'admin-catalog' ? 'bg-blue-600/30 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white']">
+            <span>🗂️</span> Catálogo
+          </button>
           <button @click="view = 'operator-home'" :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors', view === 'operator-home' ? 'bg-blue-600/30 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white']">
             <span>📦</span> Panel Operador
           </button>
@@ -153,7 +156,7 @@
               </div>
             </template>
 
-            <!-- ================= REGISTRO (CON REGLAS DE NEGOCIO COMPLETAS) ================= -->
+            <!-- Registro -->
             <template v-if="view === 'register'">
               <header class="bg-[#1e3a5f] text-white pt-6 pb-4 px-6 text-center rounded-b-[24px]">
                 <h1 class="text-xl font-bold tracking-tight">CS Préstamos</h1>
@@ -691,6 +694,67 @@
           </div>
         </div>
 
+        <!-- ================= VISTA: ADMIN CATÁLOGO ================= -->
+        <div v-show="view === 'admin-catalog'" class="p-4 md:p-8 flex flex-col h-full max-w-7xl mx-auto">
+          <div class="mb-6 shrink-0 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Gestión de Catálogo</h2>
+              <p class="text-sm text-slate-500">Añade o modifica los artículos del inventario</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="relative w-full md:w-64">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                <input type="text" v-model="searchQuery" placeholder="Buscar artículo..." class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:border-blue-500 shadow-sm">
+              </div>
+              <button @click="openAddProduct" class="px-5 py-2.5 bg-[#1e3a5f] hover:bg-[#152a45] text-white rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2 shrink-0">
+                <span>➕</span> <span class="hidden md:inline">Nuevo Artículo</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-grow overflow-y-auto">
+            <div v-if="toast" class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-sm font-medium shadow-sm">
+              {{ toast }}
+            </div>
+
+            <!-- Lista de Artículos (Estilo Panel de Gestión) -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <div class="hidden md:grid grid-cols-12 gap-4 p-4 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div class="col-span-5">Artículo</div>
+                <div class="col-span-2">Categoría</div>
+                <div class="col-span-3 text-center">Disponibilidad</div>
+                <div class="col-span-2 text-right">Acciones</div>
+              </div>
+
+              <div v-for="item in filteredItems" :key="item.code" class="flex flex-col md:grid md:grid-cols-12 gap-4 p-4 border-b border-slate-100 items-center hover:bg-slate-50 transition">
+                <div class="w-full md:col-span-5 flex flex-col">
+                  <h4 class="text-sm font-bold text-slate-900">{{ item.name }}</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">{{ item.code }}</p>
+                </div>
+                <div class="w-full md:col-span-2 flex md:block justify-between items-center mt-2 md:mt-0">
+                  <span class="md:hidden text-xs font-bold text-slate-500">Categoría:</span>
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md uppercase">{{ item.categoryName }}</span>
+                </div>
+                <div class="w-full md:col-span-3 flex md:justify-center justify-between items-center mt-2 md:mt-0">
+                  <span class="md:hidden text-xs font-bold text-slate-500">Stock:</span>
+                  <span class="text-xs font-bold" :class="item.availableCount > 0 ? 'text-emerald-600' : 'text-red-500'">
+                    {{ item.availableCount }} / {{ item.totalCount }}
+                  </span>
+                </div>
+                <div class="w-full md:col-span-2 flex justify-end mt-3 md:mt-0">
+                  <button @click="openEditProduct(item)" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5 w-full md:w-auto justify-center">
+                    <span>✏️</span> Editar
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="filteredItems.length === 0" class="p-8 text-center text-sm text-slate-500">
+                No se encontraron artículos en el catálogo.
+              </div>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       <!-- ================= BOTTOM NAV (SOLO MÓVIL) ================= -->
@@ -720,6 +784,9 @@
           </button>
           <button @click="view = 'admin-users'" class="flex flex-col items-center cursor-pointer" :class="view === 'admin-users' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'">
             <span class="text-xl">👥</span><span class="text-[10px] font-semibold mt-0.5">Usuarios</span>
+          </button>
+          <button @click="view = 'admin-catalog'" class="flex flex-col items-center cursor-pointer" :class="view === 'admin-catalog' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'">
+            <span class="text-xl">🗂️</span><span class="text-[10px] font-semibold mt-0.5">Catálogo</span>
           </button>
           <button @click="view = 'operator-home'" class="flex flex-col items-center cursor-pointer" :class="view === 'operator-home' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'">
             <span class="text-xl">📦</span><span class="text-[10px] font-semibold mt-0.5">Operador</span>
@@ -838,6 +905,72 @@
       </div>
     </div>
 
+    <!-- Modal Formulario de Producto (Admin) -->
+    <div v-if="showProductModal" class="absolute inset-0 z-[70] bg-slate-900/60 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div class="w-full max-w-lg max-h-[95vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+        <div class="px-6 py-5 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">{{ isEditingProduct ? 'Modificar Artículo' : 'Nuevo Artículo' }}</h3>
+            <p class="text-sm text-slate-500">{{ isEditingProduct ? 'Actualiza los datos del equipo' : 'Ingresa los datos para el catálogo' }}</p>
+          </div>
+          <button @click="closeProductModal" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition">✕</button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-slate-600 tracking-wider">CÓDIGO</label>
+              <input type="text" v-model="productForm.code" :disabled="isEditingProduct" placeholder="Ej: EL-1234" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-500">
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-slate-600 tracking-wider">CATEGORÍA</label>
+              <select v-model="productForm.category" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 bg-white">
+                <option value="electricos">Electrónicos</option>
+                <option value="libros">Libros</option>
+                <option value="deportes">Deportes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-slate-600 tracking-wider">NOMBRE DEL ARTÍCULO</label>
+            <input type="text" v-model="productForm.name" placeholder="Ej: Laptop Dell XPS 13" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-slate-600 tracking-wider">DESCRIPCIÓN</label>
+            <textarea v-model="productForm.description" rows="3" placeholder="Detalles técnicos, estado, etc." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-slate-600 tracking-wider">TIEMPO MÁXIMO</label>
+              <input type="text" v-model="productForm.maxTime" placeholder="Ej: Máx. 7 días" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-slate-600 tracking-wider">CANTIDAD TOTAL</label>
+              <input type="number" min="1" v-model="productForm.totalCount" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-slate-600 tracking-wider">PARTES Y ACCESORIOS (SEPARADOS POR COMA)</label>
+            <textarea v-model="productForm.partsString" rows="2" placeholder="Ej: Laptop, Cargador, Mouse inalámbrico, Funda" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>
+            <p class="text-[10px] text-slate-500">Estas partes aparecerán como checklist para el operador en la devolución.</p>
+          </div>
+        </div>
+
+        <div class="p-5 bg-slate-50 border-t border-slate-200 flex gap-3">
+          <button @click="closeProductModal" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 transition">
+            Cancelar
+          </button>
+          <button @click="saveProduct" :disabled="!isProductFormValid" class="flex-1 py-3 rounded-xl text-sm font-bold text-white transition bg-[#1e3a5f] hover:bg-[#152a45] disabled:bg-slate-300 disabled:cursor-not-allowed shadow-sm">
+            {{ isEditingProduct ? 'Guardar Cambios' : 'Crear Artículo' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div> <!-- Fin Contenedor Principal -->
 </template>
 
@@ -854,6 +987,7 @@ type ViewType =
   | 'operator-home'
   | 'admin-appeals'
   | 'admin-users'
+  | 'admin-catalog'
 
 type Role = 'student' | 'operator' | 'admin'
 
@@ -944,6 +1078,7 @@ const viewTitle = computed(() => {
   if (view.value === 'operator-home') return 'Panel de Operador'
   if (view.value === 'admin-appeals') return 'Apelaciones'
   if (view.value === 'admin-users') return 'Gestión de Usuarios'
+  if (view.value === 'admin-catalog') return 'Gestión de Catálogo'
   return 'CS Préstamos'
 })
 
@@ -1161,7 +1296,7 @@ const allCatalogItems = ref<CatalogItem[]>([
 const filteredItems = computed(() => {
   return allCatalogItems.value.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || item.description.toLowerCase().includes(searchQuery.value.toLowerCase()) || item.code.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchesAvailability = !onlyAvailable.value || item.availableCount > 0
+    const matchesAvailability = (view.value === 'admin-catalog') ? true : (!onlyAvailable.value || item.availableCount > 0)
     return matchesSearch && matchesAvailability
   })
 })
@@ -1173,6 +1308,107 @@ const deportesItems = computed(() => filteredItems.value.filter(i => i.category 
 const openItemDetail = (item: CatalogItem): void => {
   selectedItem.value = item
   view.value = 'item-detail'
+}
+
+// LÓGICA DEL MODAL DE PRODUCTO (ADMIN)
+const showProductModal = ref(false)
+const isEditingProduct = ref(false)
+const productForm = ref({
+  category: 'electricos',
+  code: '',
+  name: '',
+  description: '',
+  totalCount: 1,
+  maxTime: 'Máx. 7 días',
+  partsString: ''
+})
+
+const isProductFormValid = computed(() => {
+  return productForm.value.code.trim() !== '' && 
+         productForm.value.name.trim() !== '' && 
+         productForm.value.totalCount > 0
+})
+
+const openAddProduct = () => {
+  isEditingProduct.value = false
+  productForm.value = {
+    category: 'electricos',
+    code: '',
+    name: '',
+    description: '',
+    totalCount: 1,
+    maxTime: 'Máx. 7 días',
+    partsString: ''
+  }
+  showProductModal.value = true
+}
+
+const openEditProduct = (item: CatalogItem) => {
+  isEditingProduct.value = true
+  productForm.value = {
+    category: item.category,
+    code: item.code,
+    name: item.name,
+    description: item.description,
+    totalCount: item.totalCount,
+    maxTime: item.maxTime,
+    partsString: item.parts.join(', ')
+  }
+  showProductModal.value = true
+}
+
+const closeProductModal = () => {
+  showProductModal.value = false
+}
+
+const saveProduct = () => {
+  const partsArray = productForm.value.partsString.split(',').map(p => p.trim()).filter(p => p !== '')
+  const catName = categoryLabels[productForm.value.category as keyof typeof categoryLabels]
+
+  if (isEditingProduct.value) {
+    const idx = allCatalogItems.value.findIndex(i => i.code === productForm.value.code)
+    if (idx !== -1) {
+      const oldItem = allCatalogItems.value[idx]
+      const countDiff = productForm.value.totalCount - oldItem.totalCount
+      const newAvailable = Math.max(0, oldItem.availableCount + countDiff)
+
+      allCatalogItems.value[idx] = {
+        ...oldItem,
+        category: productForm.value.category as CatalogItem['category'],
+        categoryName: catName,
+        name: productForm.value.name,
+        description: productForm.value.description,
+        totalCount: productForm.value.totalCount,
+        availableCount: newAvailable,
+        stockText: newAvailable > 0 ? `${newAvailable} disp.` : 'Agotado (0 disp.)',
+        maxTime: productForm.value.maxTime,
+        parts: partsArray
+      }
+      showToast('Artículo modificado correctamente.')
+    }
+  } else {
+    const exists = allCatalogItems.value.some(i => i.code === productForm.value.code)
+    if (exists) {
+      alert('Ya existe un artículo con este código.')
+      return
+    }
+
+    allCatalogItems.value.push({
+      category: productForm.value.category as CatalogItem['category'],
+      categoryName: catName,
+      code: productForm.value.code,
+      name: productForm.value.name,
+      description: productForm.value.description,
+      totalCount: productForm.value.totalCount,
+      availableCount: productForm.value.totalCount,
+      stockText: `${productForm.value.totalCount} disp.`,
+      maxTime: productForm.value.maxTime,
+      parts: partsArray,
+      history: []
+    })
+    showToast('Artículo añadido correctamente.')
+  }
+  closeProductModal()
 }
 
 // Navegación principal / Roles
